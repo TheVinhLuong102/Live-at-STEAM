@@ -1,7 +1,4 @@
-//@flow
-
 import React from "react";
-import { Resizable, ResizableBox } from "react-resizable";
 
 type NewMessagePayload = {
   username: string;
