@@ -5,7 +5,6 @@
   "dependencies": {
     "@babel/cli": "^7.10.5",
     "@babel/core": "^7.11.1",
-    "@babel/preset-flow": "^7.10.4",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.5.0",
     "@testing-library/user-event": "^7.2.1",
@@ -16,7 +15,6 @@
     "@types/react-resizable": "^1.7.2",
     "@types/socket.io": "^2.1.11",
     "@types/socket.io-client": "^1.4.33",
-    "flow-bin": "^0.132.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-resizable": "^1.10.1",
@@ -27,8 +25,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "flow": "flow"
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": "react-app"
