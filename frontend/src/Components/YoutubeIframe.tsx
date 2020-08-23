@@ -6,6 +6,7 @@ export default function YoutubeIframe() {
     let [youtubeUrl, setYoutubeUrl] = React.useState();
 
     function updateNewStreamUrl() {
+        //dummy API
         fetch("./youtubesource.json")
         .then((response) => response.json())
         .then(data => {
@@ -23,7 +24,7 @@ export default function YoutubeIframe() {
             updateNewStreamUrl();
         }, 1000);
         return () => clearInterval(interval);
-    })
+    }, [])
 
     return (
         <iframe width="100%" style={{"height":"70vh"}}

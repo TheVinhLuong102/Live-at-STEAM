@@ -31,7 +31,7 @@ export default function YoutubeIframe() {
                 <iframe width="100%" height="100%" 
                     src={scratchUrl} 
                     frameBorder="0" 
-                    allowTransparency="true"
+                    allowTransparency={true}
                     scrolling="no"
                     allowFullScreen/>
              </ResizableBox>

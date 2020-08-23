@@ -3,39 +3,50 @@
 import React from "react";
 import { Resizable, ResizableBox } from "react-resizable";
 
-type NewMessagePayload = $ReadOnly<{
-  username: string,
-  msg: string,
-}>;
+type NewMessagePayload = {
+  username: string;
+  msg: string;
+};
 
-export default function Chatbox({
-  serverAddress,
-}: $ReadOnly<{
-  serverAddress: string,
-}>) {
+let socket: SocketIOClient.Socket | null = null;
 
-  const [messages, updateMessages] = React.useState([]);
+export default function Chatbox({ serverAddress }: { serverAddress: string }) {
+  const [messages, updateMessages] = React.useState([] as string[]);
   const [messageInput, setMessageInput] = React.useState("");
+  const [jwtToken, setJWTToken] = React.useState("");
 
-  let socket = null;
-  const handleSubmit = (event) => {
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     console.log(messageInput);
-    if (socket) {
-      socket.emit("message", messageInput);
-      setTimeout(() => setMessageInput(""), 1);
-    }
+    socket?.emit("message", messageInput);
+    setTimeout(() => setMessageInput(""), 1);
   };
 
   React.useEffect(() => {
+    socket?.close();
+
     //TODO(davidvu): pass JWT signed token
-    socket = window.io(serverAddress, { query: "username=davidvu" });
+    socket = window.io(serverAddress, {
+      query: "username=davidvu",
+    }) as SocketIOClient.Socket;
+
     socket.on("new_message", (payload: NewMessagePayload) => {
-      updateMessages([...messages, `${payload.username}: ${payload.msg}`]);
+      messages.push(`${payload.username}: ${payload.msg}`);
+      updateMessages([...messages]); // have to do this to trigger rerender
     });
+
     return () => {
       if (socket) socket.close();
     };
+  }, [jwtToken]);
+
+  //auto scroll
+  React.useEffect(() => {
+    var objDiv = document.getElementById("chatBody");
+
+    if(objDiv)
+      objDiv.scrollTop = objDiv.scrollHeight;
   });
 
   return (
@@ -52,14 +63,18 @@ export default function Chatbox({
             </button>
           </div>
         </div>
-        <div className="panel-body" style={{"text-align": "left"}}>
-          <ul className="chat">{messages.map((m,i) => <li key={i}>{m}</li>) } </ul>
+        <div className="panel-body" id="chatBody" style={{ textAlign: "left" }}>
+          <ul className="chat">
+            {messages.map((m, i) => (
+              <li key={i}>{m}</li>
+            ))}
+          </ul>
         </div>
         <div className="panel-footer">
           <div className="input-group">
-            <form onSubmit={handleSubmit} style={{"text-align": "left"}}>
+            <form onSubmit={handleSubmit} style={{ textAlign: "left" }}>
               <input
-                style={{"width": "90%"}}
+                style={{ width: "90%" }}
                 type="text"
                 value={messageInput}
                 className="form-control input-sm"
