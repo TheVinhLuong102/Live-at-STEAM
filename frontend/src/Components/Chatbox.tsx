@@ -51,14 +51,6 @@ export default function Chatbox({ serverAddress }: { serverAddress: string }) {
       <div className="panel panel-primary">
         <div className="panel-heading">
           <span className="glyphicon glyphicon-comment"></span> Họp Nhóm
-          <div className="btn-group pull-right">
-            <button
-              type="button"
-              className="btn btn-default btn-xs dropdown-toggle"
-            >
-              <span className="glyphicon glyphicon-chevron-down"></span>
-            </button>
-          </div>
         </div>
         <div className="panel-body" id="chatBody" style={{ textAlign: "left" }}>
           <ul className="chat">
@@ -68,23 +60,23 @@ export default function Chatbox({ serverAddress }: { serverAddress: string }) {
           </ul>
         </div>
         <div className="panel-footer">
-          <div className="input-group">
-            <form onSubmit={handleSubmit} style={{ textAlign: "left" }}>
-              <input
-                style={{ width: "90%" }}
-                type="text"
-                value={messageInput}
-                className="form-control input-sm"
-                placeholder="Tin nhắn cho lớp ..."
-                onChange={(e) => setMessageInput(e.target.value)}
-              />
-              <input
-                type="submit"
-                value="Gửi"
-                className="btn btn-warning btn-sm"
-              />
-            </form>
-          </div>
+          <form onSubmit={handleSubmit} className="form-inline" style={{ textAlign: "left" }}>
+            <input
+              style={{ width: "90%" }}
+              type="text"
+              value={messageInput}
+              className="form-control input-sm"
+              placeholder="Tin nhắn cho lớp ..."
+              onChange={(e) => setMessageInput(e.target.value)}
+            />
+            
+            <input
+              type="submit"
+              value="Gửi"
+              style={{marginLeft: "5px" }}
+              className="btn btn-warning btn-sm"
+            />
+          </form>
         </div>
       </div>
     </div>

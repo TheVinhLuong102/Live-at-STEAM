@@ -27,7 +27,6 @@
     -->
     <!-- boostrap css -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
 
     <!-- boostrap js -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
@@ -69,6 +68,18 @@
           color: #777777;
       }
 
+      .glyphicon {
+          position: relative;
+          top: 1px;
+          display: inline-block;
+          font-family: 'Glyphicons Halflings';
+          font-style: normal;
+          font-weight: 400;
+          line-height: 1;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+      }
+
       .panel .slidedown .glyphicon, .chat .glyphicon
       {
           margin-right: 5px;
@@ -78,6 +89,62 @@
       {
           overflow-y: scroll;
           height: 60vh;
+      }
+
+      .panel {
+      margin-bottom: 20px;
+      background-color: #fff;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      -webkit-box-shadow: 0 1px 1px rgba(0,0,0,.05);
+      box-shadow: 0 1px 1px rgba(0,0,0,.05);
+      }
+
+  
+
+      .input-sm {
+          height: 30px;
+          padding: 5px 10px;
+          font-size: 12px;
+          line-height: 1.5;
+          border-radius: 3px;
+      }
+     
+      .btn-warning {
+        color: #ffffff;
+      }
+
+      .btn-sm {
+        font-size: 12px;
+        line-height: 1.5;
+      }
+
+      .panel-body {
+          padding: 15px;
+      }
+
+      .panel-primary {
+        border-color: #337ab7;
+      }
+      
+      .panel-primary>.panel-heading {
+          color: #fff;
+          background-color: #337ab7;
+          border-color: #337ab7;
+      }
+      .panel-heading {
+          padding: 10px 15px;
+          border-bottom: 1px solid transparent;
+          border-top-left-radius: 3px;
+          border-top-right-radius: 3px;
+      }
+
+      .panel-footer {
+        padding: 10px 15px;
+        background-color: #f5f5f5;
+        border-top: 1px solid #ddd;
+        border-bottom-right-radius: 3px;
+        border-bottom-left-radius: 3px;
       }
 
       ::-webkit-scrollbar-track
