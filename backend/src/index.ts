@@ -15,10 +15,11 @@ app.get('/', (req, res) => {
 });
 
 app.get('/admin/setMaxRooms', (req, res) => {
-  let maxRoom: Number | null | undefined = req.query.maxRooms;
-  if (maxRoom == null) {
+
+  if (!req.query.maxRooms) {
     res.status(400).json({ status: -1, error: "missing params" } as APIResponse)
   }
+  let maxRoom: number  = parseInt(req.query.maxRooms);
   myChatServer.setMaxNumRooms(maxRoom).then(() =>
     res.json({
       "status": 1,

@@ -270,11 +270,17 @@ export default class NonDistributedChatServer {
                     throw "No rooms to join";
 
                 this.socketLocalJoinRoom(socket, rooms[0].name)
-                .then(() => this.setupSocketEvents(socket))
-                .catch((e) => {
-                    console.error(e);
-                    throw `${socket.id} couldn't setup socket events because failed to join a room!`
-                });
+                    .then(() => {
+                        this.io.to(rooms[0].name).emit("new_member_joined", {
+                            username: socket.handshake.query.username,
+                            room: rooms[0].name,
+                        } as NewMemberJoined);
+                        this.setupSocketEvents(socket);
+                    })
+                    .catch((e) => {
+                        console.error(e);
+                        throw `${socket.id} couldn't setup socket events because failed to join a room!`
+                    });
             }).catch(e => console.error(e))
             socket.on("disconnect", () => {
                 console.log("disconnected");
