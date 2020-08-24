@@ -11,23 +11,25 @@ type SessionStore = {
 
 type SocketClientID = string;
 type Room = {
-    name: string;
-    count: number;
+    name: string,
+    count: number
 };
 
 type NewMessagePayload = {
-    username: string;
-    msg: string;
+    username: string,
+    msg: string
 };
 
 type JoinRoomResponse = {
-    status: number; // 1 == "success", 0 == "room is full", -1 == "error"
-    message: string;
+    status: number,
+    response?: string,
+    username?: string,
+    room?: string,
 };
 
 type NewMemberJoined = {
-    username: string;
-    room: string;
+    username: string,
+    room: string
 };
 
 const ROOM_PREFIX = "Room";
@@ -41,14 +43,10 @@ function shuffleArray(array: any[]) {
 
 export default class NonDistributedChatServer {
     io: SocketIO.Server;
-    sessionStore: {
-        [key: string]: SessionStore;
-    };
     private maxNumRooms: Number;
 
     constructor(http_server: http.Server) {
         this.io = require("socket.io")(http_server);
-        this.sessionStore = {};
         this.maxNumRooms = 1;
     }
 
@@ -221,7 +219,7 @@ export default class NonDistributedChatServer {
             let io: SocketIO.Namespace | SocketIO.Server = this.io;
             Object.keys(socket.rooms).forEach((r) => (io = io.to(r)));
             io.emit("message", {
-                username: this.sessionStore[socket.id].username,
+                username: socket.handshake.query.username,
                 msg: msg,
             } as NewMessagePayload);
         });
@@ -234,6 +232,12 @@ export default class NonDistributedChatServer {
                         username: socket.handshake.query.username,
                         room: roomName,
                     } as NewMemberJoined);
+
+                    this.io.to(socket.id).emit("join_room_resp", {
+                        status: 1,
+                        username: socket.handshake.query.username,
+                        room: roomName
+                    } as JoinRoomResponse);
                 })
                 .catch((e) => {
                     console.error(e);
@@ -250,15 +254,6 @@ export default class NonDistributedChatServer {
         this.io.use((socket, next) => {
             let handshake = socket.handshake;
             // TODO(davidvu): implement JWT token verification
-            this.sessionStore[socket.id] = {
-                isAuthenticated: true,
-                username: handshake.query.username,
-                // default room for each socket is its socketid
-                room: handshake.query.room || socket.id,
-            };
-            this.sessionStore[socket.id].isAuthenticated = true;
-            // TODO(davidvu): retrieve this info from signed token
-            this.sessionStore[socket.id].username = handshake.query.username;
             next();
         });
 
@@ -284,7 +279,6 @@ export default class NonDistributedChatServer {
             }).catch(e => console.error(e))
             socket.on("disconnect", () => {
                 console.log("disconnected");
-                delete this.sessionStore[socket.id];
             });
         });
     }

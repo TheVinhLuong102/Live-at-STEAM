@@ -15,22 +15,24 @@ let socket: SocketIOClient.Socket | null = null;
 function ChatMessage({
   username,
   message,
+  room,
   type,
 }: {
   username: string;
   message: string | null | undefined;
+  room: string | null | undefined;
   type: string;
 }) {
   switch (type) {
     case "new_member_joined":
       return (
         <span className="font-italic" style={{ fontSize: "10px" }}>
-          {username} just joined the room
+          {username} just joined the room "{room}"
         </span>
       );
     case "new_message":
       return (
-        <span>
+        <span style={{ fontSize: "12px" }}>
           {username}: {message}
         </span>
       );
@@ -42,6 +44,7 @@ function ChatMessage({
 type ServerMessage = {
   username: string;
   message?: string | null | undefined;
+  room?: string | null | undefined;
   type: string;
 };
 
@@ -77,6 +80,7 @@ export default function Chatbox({ serverAddress }: { serverAddress: string }) {
     socket.on("new_member_joined", (payload: NewMemberJoined) => {
       messages.push({
         username: payload.username,
+        room: payload.room,
         type: "new_member_joined",
       });
       updateMessages([...messages]); // have to do this to trigger rerender
@@ -99,7 +103,29 @@ export default function Chatbox({ serverAddress }: { serverAddress: string }) {
       <div className="panel panel-primary">
         <div className="panel-heading">
           <span className="glyphicon glyphicon-comment"></span> Họp Nhóm
+          <div className="btn-group">
+            <button
+              type="button"
+              className="btn btn-default dropdown-toggle"
+              data-toggle="dropdown"
+            >
+              <span className="glyphicon glyphicon-chevron-down"></span>
+            </button>
+            <ul className="dropdown-menu slidedown">
+              <li>
+                <a href="http://develoteca.com">
+                  <span className="glyphicon glyphicon-refresh"></span>Develoteca
+                </a>
+              </li>
+              <li>
+                <a href="https://www.youtube.com/user/dimit28">
+                  <span className="glyphicon glyphicon-ok-sign"></span>Youtube
+                </a>
+              </li>
+            </ul>
+          </div>
         </div>
+
         <div className="panel-body" id="chatBody" style={{ textAlign: "left" }}>
           <ul className="chat">
             {messages.map((m, i) => (
@@ -107,6 +133,7 @@ export default function Chatbox({ serverAddress }: { serverAddress: string }) {
                 <ChatMessage
                   username={m.username}
                   message={m.message}
+                  room={m.room}
                   type={m.type}
                   key={i}
                 />

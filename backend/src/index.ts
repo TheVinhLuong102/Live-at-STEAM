@@ -1,4 +1,3 @@
-
 import express from 'express';
 import ChatServer from './chat_server/server';
 
@@ -6,13 +5,27 @@ const app = express();
 
 type APIResponse = {
   status: number,
-  response?: string,
+  response?: any,
   error?: string,
 }
 
 app.get('/', (req, res) => {
   res.send('<h1>Hello world</h1>');
 });
+
+app.get('/api/getRooms', (req, res) => {
+
+  myChatServer.getRooms().then((rooms) =>
+    res.json({
+      "status": 1,
+      "response": rooms
+    } as APIResponse)
+  ).catch(e => res.status(500).json({
+    status: -1,
+    error: "something went wrong"
+  } as APIResponse));
+});
+
 
 app.get('/admin/setMaxRooms', (req, res) => {
 
@@ -32,7 +45,6 @@ app.get('/admin/setMaxRooms', (req, res) => {
 });
 
 app.get('/admin/shuffleRooms', (req, res) => {
-
   myChatServer.shuffleIntoRooms().then(() =>
     res.json({
       "status": 1,
