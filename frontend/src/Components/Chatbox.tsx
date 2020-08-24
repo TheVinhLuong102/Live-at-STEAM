@@ -28,7 +28,7 @@ export default function Chatbox({ serverAddress }: { serverAddress: string }) {
       query: "username=davidvu",
     }) as SocketIOClient.Socket;
 
-    socket.on("new_message", (payload: NewMessagePayload) => {
+    socket.on("message", (payload: NewMessagePayload) => {
       messages.push(`${payload.username}: ${payload.msg}`);
       updateMessages([...messages]); // have to do this to trigger rerender
     });
