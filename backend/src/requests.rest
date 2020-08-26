@@ -12,3 +12,10 @@ GET http://localhost:3600/admin/shuffleRooms
 Content-type: : application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiZGF2aWQiLCJpYXQiOjE1OTg0ODE1ODJ9.8F75Y1XL3PVg5zWNoi3J8hfxGJziiz-KH4V3JYtRRmc
 Cookies: Authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiZGF2aWQiLCJpYXQiOjE1OTg0ODE1ODJ9.8F75Y1XL3PVg5zWNoi3J8hfxGJziiz-KH4V3JYtRRmc
+
+###
+
+GET http://localhost:3600/api/report?target_user=david
+Content-type: : application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiZGF2aWQiLCJpYXQiOjE1OTg0ODE1ODJ9.8F75Y1XL3PVg5zWNoi3J8hfxGJziiz-KH4V3JYtRRmc
+Cookies: Authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiZGF2aWQiLCJpYXQiOjE1OTg0ODE1ODJ9.8F75Y1XL3PVg5zWNoi3J8hfxGJziiz-KH4V3JYtRRmc

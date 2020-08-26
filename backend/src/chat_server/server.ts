@@ -7,7 +7,6 @@ import { UserManager } from "./member_manager";
 type SessionStore = {
     isAuthenticated: boolean;
     username: string | null;
-    room: string;
 };
 
 type SocketClientID = string;
@@ -44,11 +43,14 @@ function shuffleArray(array: any[]) {
 
 export default class NonDistributedChatServer {
     io: SocketIO.Server;
+    userManager: UserManager;
+    localSocketState: { [key: string] : SessionStore };
     private maxNumRooms: Number;
 
-    constructor(http_server: http.Server, user_manager: UserManager) {
+    constructor(http_server: http.Server, userManager: UserManager) {
         this.io = require("socket.io")(http_server);
         this.maxNumRooms = 1;
+        this.userManager = userManager;
     }
 
     async getRooms(): Promise<Room[]> {
@@ -253,8 +255,9 @@ export default class NonDistributedChatServer {
     setup() {
         // "thread" safe
         this.io.use((socket, next) => {
-            let handshake = socket.handshake;
+            let handshake = socket.handshake.query.userToken;
             // TODO(davidvu): implement JWT token verification
+            
             next();
         });
 

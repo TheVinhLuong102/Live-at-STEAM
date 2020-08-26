@@ -94,6 +94,8 @@ class LocalUserManager extends UserManager{
         userStateMap[username].reportCount = userStateMap[username].reportCount ? userStateMap[username].reportCount + 1 : 1;
         if(userStateMap[username].reportCount >= 5 ) { //  magic number 5
             await this.banUser(username).catch((e) => console.error(e));
+        } else {
+            await this.writeUserState(userStateMap).catch(e => {console.error(e); throw "Failed to write UserStateMap back to disk"});
         }
     }
 
@@ -103,7 +105,8 @@ class LocalUserManager extends UserManager{
         if (!(username in userStateMap))
             return;
 
-        userStateMap.username.status = UserStatus.BANNED;
+        userStateMap[username].status = UserStatus.BANNED;
+        console.log(userStateMap[username])
         await this.writeUserState(userStateMap).catch(e => {console.error(e); throw "Failed to write UserStateMap back to disk"});
     }
 }

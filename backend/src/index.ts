@@ -17,6 +17,7 @@ type APIResponse = {
   response?: any,
   error?: string,
 }
+
 app.post('/login', (req, res) => {
   const username: string = req.body.username;
   if(username == null) {
@@ -63,6 +64,19 @@ app.get('/admin/setMaxRooms', [jwt_express_auth, check_admin], (req, res) => {
     status: -1,
     error: "something went wrong"
   } as APIResponse));
+});
+
+/**
+ * GET /api/report?target_user={username}
+ */
+app.get('/api/report', [jwt_express_auth], (req, res) => {
+  if (!req.query.target_user) {
+    return res.status(400).json({ status: -1, error: "missing params" } as APIResponse)
+  }
+  let target_user: string = req.query.target_user;
+  UserManager.reportUser(target_user).then(() => {
+    return res.json({ status: 1, response: `User ${target_user} has been report.` } as APIResponse);
+  });
 });
 
 app.get('/admin/shuffleRooms', [jwt_express_auth, check_admin], (req, res) => {

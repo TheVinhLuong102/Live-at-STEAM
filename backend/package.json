@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon src/index.ts --extensions .ts --exec babel-node --presets @babel/preset-env",
+    "start": "nodemon src/index.ts --ignore userstate.json --extensions .ts --exec babel-node --presets @babel/preset-env",
     "build": "babel src --out-dir build --extensions '.ts,.tsx'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
