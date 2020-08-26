@@ -39,9 +39,9 @@ app.get('/api/getRooms', (req, res) => {
 app.get('/admin/setMaxRooms', (req, res) => {
 
   if (!req.query.maxRooms) {
-    res.status(400).json({ status: -1, error: "missing params" } as APIResponse)
+    return res.status(400).json({ status: -1, error: "missing params" } as APIResponse)
   }
-  let maxRoom: number  = parseInt(req.query.maxRooms);
+  let maxRoom: number  = parseInt(req.query.maxRooms as string);
   myChatServer.setMaxNumRooms(maxRoom).then(() =>
     res.json({
       "status": 1,
