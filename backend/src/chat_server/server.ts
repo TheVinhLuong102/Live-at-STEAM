@@ -2,6 +2,7 @@ import http from "http";
 import { assert } from "console";
 import { isBuffer } from "util";
 import { Namespace } from "socket.io";
+import { UserManager } from "./member_manager";
 
 type SessionStore = {
     isAuthenticated: boolean;
@@ -45,7 +46,7 @@ export default class NonDistributedChatServer {
     io: SocketIO.Server;
     private maxNumRooms: Number;
 
-    constructor(http_server: http.Server) {
+    constructor(http_server: http.Server, user_manager: UserManager) {
         this.io = require("socket.io")(http_server);
         this.maxNumRooms = 1;
     }

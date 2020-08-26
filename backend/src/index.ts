@@ -1,8 +1,10 @@
 import express, { json } from 'express';
 import ChatServer from './chat_server/server';
 import jwt from 'jsonwebtoken';
+import {LocalUserManager} from './chat_server/member_manager';
 
-require('dotenv').config({path:require('find-config')('.env')})
+require('dotenv').config();
+
 const app = express();
 
 app.use(express.json());
@@ -13,17 +15,27 @@ type APIResponse = {
   error?: string,
 }
 
+const user_manager = new LocalUserManager();
+
 app.post('/login', (req, res) => {
   const username: string = req.body.username;
   if(username == null) {
     return res.status(400).json({"error": "missing params"});
   }
   const token = jwt.sign({name: username}, process.env.JWT_SECRET_KEY);
-  res.json({access_token: token});
+  user_manager.getState(username).then(async (userState) => {
+    // if not registered
+    if(!userState) {
+      await user_manager.addUser(username).catch((e) => {
+        console.error(e);
+        return res.status(500).json({"error": "Failed to add new user!"});
+      })
+    }
+    return res.json({access_token: token});
+  });
 });
 
 app.get('/api/getRooms', (req, res) => {
-
   myChatServer.getRooms().then((rooms) =>
     res.json({
       "status": 1,
@@ -75,7 +87,7 @@ app.get('*', function(req, res) {
 
 const http_server = app.listen(process.env.PORT || 3600, () => console.log(`Server is listening on port ${process.env.PORT || 3600}`));
 
-const myChatServer = new ChatServer(http_server);
+const myChatServer = new ChatServer(http_server, user_manager);
 myChatServer.setup();
 
 module.exports = app;
