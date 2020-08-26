@@ -36,7 +36,7 @@ jobs:
             GITHUB_USERNAME: ${{ secrets.USERNAME }}
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          host: ${{ secrets.HOST }}
+          host: ${{ secrets.DROPLET_IP }}
           username: ${{ secrets.DROPLET_USERNAME }}
           password: ${{ secrets.DROPLET_PASSWORD }}
           port: ${{ secrets.DROPLET_SSH_PORT }}
