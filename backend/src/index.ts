@@ -16,8 +16,7 @@ type APIResponse = {
 app.post('/login', (req, res) => {
   const username: string = req.body.username;
   if(username == null) {
-    res.status(400).json({"error": "missing params"});
-    return;
+    return res.status(400).json({"error": "missing params"});
   }
   const token = jwt.sign({name: username}, process.env.JWT_SECRET_KEY);
   res.json({access_token: token});
