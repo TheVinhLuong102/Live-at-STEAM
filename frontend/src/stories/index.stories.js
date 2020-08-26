@@ -29,7 +29,7 @@ function MainPage({
               <iframe width="100%" height="100%" src="https://www.youtube.com/embed/RK1K2bCg4J8" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             </div>
             <div className="u-size3of12 u-flex u-positionRelative">
-              {show && (
+              {loggedIn && show && (
                 <div className="u-positionAbsolute u-positionFull u-zIndexModal u-flex u-flexGrow-1 u-alignItemsCenter u-justifyContentCenter">
                   <div className="Modal-backDrop u-positionAbsolute u-positionFull u-backgroundBlack u-zIndex2 Show "/>
                   <div className="u-positionRelative u-zIndex3 u-marginMedium">
