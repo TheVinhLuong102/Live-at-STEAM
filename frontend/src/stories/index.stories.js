@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PageLayout, Modal, Button } from '@gotitinc/design-system';
+import { PageLayout, Modal, Button, BubbleChat,Avatar } from '@gotitinc/design-system';
 import SplitPane from 'react-split-pane';
 import ChatArea from './ChatArea';
 import HeaderUI from './HeaderUI';
@@ -44,6 +44,19 @@ function MainPage({
                         <Button variant="primary" width="full">Chuyển phòng</Button>
                       </Modal.Footer>
                     </Modal>
+                  </div>
+                </div>
+              )}
+              {!loggedIn && (
+                <div className="u-positionAbsolute u-positionFull u-zIndexModal u-flex u-alignItemsEnd">
+                  <div className="Modal-backDrop u-positionAbsolute u-positionFull u-backgroundBlack u-zIndex2 Show "/>
+                    <div className="u-positionRelative u-zIndex3 u-marginSmall u-marginBottomExtraLarge">
+                      <BubbleChat
+                        className="u-marginNone"
+                        text="Xin chào, đăng nhập vào tài khoàn STEAM for Vietnam LMS của bạn để bất đầu chat với các thành viên khác trong phòng chat này!"
+                        type="outbound"
+                        avatar={() =>  <Avatar className="u-flexShrink-0 u-marginRightExtraSmall u-marginTopExtraSmall" src={require('../assets/images/nophoto.svg')} />}
+                      />
                   </div>
                 </div>
               )}

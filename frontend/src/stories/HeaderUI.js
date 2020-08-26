@@ -1,5 +1,6 @@
 import React from 'react';
 import { Header, Logo, SafeAnchor,Badge, Button, Dropdown, Icon } from '@gotitinc/design-system';
+import { linkTo } from '@storybook/addon-links';
 
 function HeaderUI({
   loggedIn,
@@ -32,7 +33,7 @@ function HeaderUI({
               </Dropdown>
             </React.Fragment>
           ) : (
-            <Button variant="accent" width="min">
+            <Button variant="accent" width="min" onClick={linkTo('index--logged-in')}>
               <Button.Label className="u-textDark">Login</Button.Label>
             </Button>
           )}
