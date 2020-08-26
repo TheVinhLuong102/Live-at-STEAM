@@ -276,7 +276,8 @@ export default class NonDistributedChatServer {
                         console.error(e);
                         throw `${socket.id} couldn't setup socket events because failed to join a room!`
                     });
-            }).catch(e => console.error(e))
+            }).catch(e => console.error(e));
+            
             socket.on("disconnect", () => {
                 console.log("disconnected");
             });

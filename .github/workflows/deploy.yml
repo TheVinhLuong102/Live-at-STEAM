@@ -1,0 +1,31 @@
+name: build
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js 12.16
+      uses: actions/setup-node@v1
+      with:
+        node-version: '12.16'
+    # - name: Install and run unittest
+    #   run: |
+    #     npm install
+    #     npm test
+    #   env:
+    #     CI: true
+    - name: Publish to Github Packages Registry
+      uses: elgohr/Publish-Docker-Github-Action@master
+      with:
+        name: steamforvietnam/Live-at-STEAM/live-steam-dev
+        registry: docker.pkg.github.com
+        username: ${{ secrets.USERNAME }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+        dockerfile: Dockerfile
+        tags: master

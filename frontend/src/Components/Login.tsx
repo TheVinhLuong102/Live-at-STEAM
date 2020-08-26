@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import axios from "axios";
 import { useCookies } from "react-cookie";
+//@ts-ignore
+import { Button } from '@gotitinc/design-system';
 
 export default function Login() {
   const [email, updateEmail] = React.useState("");
@@ -51,9 +53,7 @@ export default function Login() {
           onChange={(e) => updatePassword(e.target.value)}
           placeholder="Password"
         />
-        <button className="btn btn-outline-success my-2 my-sm-0" type="submit">
-          Login
-        </button>
+        <Button type="submit">Login</Button>
       </form>
       <button className="btn btn-outline-danger my-2 my-sm-0" onClick={logOut}>
         Logout

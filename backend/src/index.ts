@@ -1,10 +1,14 @@
-import express from 'express';
+import express, { json } from 'express';
+import jwt from 'jsonwebtoken';
 import bodyParser from 'body-parser';
 import ChatServer from './chat_server/server';
 import AuthenticationServer from './authentication/authentication_server';
 
+require('dotenv').config({path:require('find-config')('.env')})
 const app = express();
 app.use(bodyParser.json())
+
+app.use(express.json());
 
 type APIResponse = {
   status: number,
@@ -12,8 +16,13 @@ type APIResponse = {
   error?: string,
 }
 
-app.get('/', (req, res) => {
-  res.send('<h1>Hello world</h1>');
+app.post('/login', (req, res) => {
+  const username: string = req.body.username;
+  if(username == null) {
+    return res.status(400).json({"error": "missing params"});
+  }
+  const token = jwt.sign({name: username}, process.env.JWT_SECRET_KEY);
+  res.json({access_token: token});
 });
 
 app.post('/login', (req, res) => {
@@ -41,9 +50,9 @@ app.get('/api/getRooms', (req, res) => {
 app.get('/admin/setMaxRooms', (req, res) => {
 
   if (!req.query.maxRooms) {
-    res.status(400).json({ status: -1, error: "missing params" } as APIResponse)
+    return res.status(400).json({ status: -1, error: "missing params" } as APIResponse)
   }
-  let maxRoom: number  = parseInt(req.query.maxRooms);
+  let maxRoom: number  = parseInt(req.query.maxRooms as string);
   myChatServer.setMaxNumRooms(maxRoom).then(() =>
     res.json({
       "status": 1,
@@ -67,6 +76,13 @@ app.get('/admin/shuffleRooms', (req, res) => {
   } as APIResponse));
 });
 
+// we build frontend app to the public folder
+app.use(express.static('public'));
+
+// fallback URL to redirect other requests to react app
+app.get('*', function(req, res) {
+  res.sendFile("/public/index.html", { root: __dirname });
+});
 
 const http_server = app.listen(process.env.PORT || 3600, () => console.log(`Server is listening on port ${process.env.PORT || 3600}`));
 
