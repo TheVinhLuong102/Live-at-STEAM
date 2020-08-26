@@ -1,8 +1,7 @@
 import express, { json } from 'express';
-import jwt from 'jsonwebtoken';
 import bodyParser from 'body-parser';
 import ChatServer from './chat_server/server';
-import AuthenticationServer from './authentication/authentication_server';
+import AuthenticationServer from './auth/authentication_server';
 import {LocalUserManager} from './chat_server/member_manager';
 
 require('dotenv').config();
@@ -22,29 +21,31 @@ const user_manager = new LocalUserManager();
 
 app.post('/login', (req, res) => {
   const username: string = req.body.username;
-  if(username == null) {
+  const password: string = req.body.password;
+  if(username == null || password == null) {
     return res.status(400).json({"error": "missing params"});
   }
-  const token = jwt.sign({name: username}, process.env.JWT_SECRET_KEY);
-  user_manager.getState(username).then(async (userState) => {
-    // if not registered
-    if(!userState) {
-      await user_manager.addUser(username).catch((e) => {
-        console.error(e);
-        return res.status(500).json({"error": "Failed to add new user!"});
-      })
-    }
-    return res.json({access_token: token});
-  });
-});
 
-app.post('/login', (req, res) => {
-  authenticationServer.login(req.body.username, req.body.password).then(() =>
-    res.json({
-      "status": 1,
-      "response": "Login successfully"
-    })
-  );
+  authenticationServer.login(username, password).then((response) => {
+    user_manager.getState(username).then(async (userState) => {
+      // if not registered
+      if(!userState) {
+        await user_manager.addUser(username).catch((e) => {
+          console.error(e);
+          return res.status(500).json({"error": "Failed to add new user!"});
+        })
+      }
+      
+      return res.json({
+        status: 1,
+        access_token: response
+      } as APIResponse);
+    });
+  }).catch(error => res.status(500).json({
+    status: -1,
+    error
+  } as APIResponse));
+
 });
 
 app.get('/api/getRooms', (req, res) => {
