@@ -44,6 +44,6 @@ jobs:
         script: |
           echo $USERNAME
           echo $GITHUB_TOKEN
-          docker login -u "$USERNAME" -p "$GITHUB_TOKEN" https://docker.pkg.github.com
+          echo "$DOCKER_PASS" | docker login -u "$USERNAME" --password-stdin https://docker.pkg.github.com
           docker pull docker.pkg.github.com/steamforvietnam/live-at-steam/live-steam-dev:master
           docker run -dit -p 80:80 docker.pkg.github.com/steamforvietnam/live-at-steam/live-steam-dev:master
