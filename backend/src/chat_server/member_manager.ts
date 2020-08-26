@@ -1,18 +1,18 @@
 import { assert } from "console";
 import f, { fstat } from "fs";
 
-enum UserStatus {
+export enum UserStatus {
     NORMAL,
     BANNED,
 }
 
-enum Role {
-    Admin,
-    Moderator,
-    Member
+export enum Role {
+    ADMIN,
+    MODERATOR,
+    MEMBER
 }
 
-type UserState = {
+export type UserState = {
     username: string,
     status: UserStatus,
     role: Role
@@ -28,8 +28,7 @@ export abstract class UserManager {
 /**
  * Temporary solution for storing UserState
  */
-export class LocalUserManager extends UserManager{
-    private userStateMap: { [key: string]: UserState };
+class LocalUserManager extends UserManager{
     private storage_path: string;
 
     constructor(storage_path: string = process.env.LOCAL_USER_STORAGE || "./userstate.json") {
@@ -70,10 +69,10 @@ export class LocalUserManager extends UserManager{
 
     async getState(username: string) : Promise<UserState | null> {
         let userStateMap = await this.loadUserState().catch((e) => { console.error(e); throw "Failed to load UserStateMap" });
-        return username in userStateMap ? userStateMap.username : null;
+        return userStateMap[username] ? userStateMap[username] : null;
     }
 
-    async addUser(username, status = UserStatus.NORMAL, role = Role.Member): Promise<UserState> {
+    async addUser(username, status = UserStatus.NORMAL, role = Role.MEMBER): Promise<UserState> {
         let userStateMap = await this.loadUserState().catch((e) => { console.error(e); throw "Failed to load UserStateMap" });
         userStateMap[username] = {
             username: username,
@@ -87,10 +86,13 @@ export class LocalUserManager extends UserManager{
     async banUser(username: string): Promise<void> {
         let userStateMap = await this.loadUserState().catch((e) => { console.error(e); throw "Failed to load UserStateMap" });
 
-        if (!(username in this.userStateMap))
+        if (!(username in userStateMap))
             return;
 
         userStateMap.username.status = UserStatus.BANNED;
         await this.writeUserState(userStateMap).catch(e => {console.error(e); throw "Failed to write UserStateMap back to disk"});
     }
 }
+
+
+export default new LocalUserManager();
