@@ -15,7 +15,8 @@ export enum Role {
 export type UserState = {
     username: string,
     status: UserStatus,
-    role: Role
+    role: Role,
+    reportCount? : number
 }
 
 
@@ -49,22 +50,24 @@ class LocalUserManager extends UserManager{
     // }
 
     async writeUserState(userStateMap: { [key: string]: UserState }) {
-        return new Promise((resolve, reject) => {
-            f.writeFile(this.storage_path, JSON.stringify(userStateMap),(err) => {
-                if (err) return reject(err);
-                resolve();
-            })
-        });
+        f.writeFileSync(this.storage_path, JSON.stringify(userStateMap));
+        // return new Promise((resolve, reject) => {
+        //     f.writeFile(this.storage_path, JSON.stringify(userStateMap),(err) => {
+        //         if (err) return reject(err);
+        //         resolve();
+        //     })
+        // });
     }
 
     async loadUserState(): Promise<{ [key: string]: UserState }> {
-        return new Promise((resolve, reject) => {
-            f.readFile(this.storage_path, 'utf8', (err, data) => {
-                if (err) return reject(err);
+        // return new Promise((resolve, reject) => {
+        //     f.readFile(this.storage_path, 'utf8', (err, data) => {
+        //         if (err) return reject(err);
 
-                resolve(JSON.parse(data));
-            })
-        });
+        //         resolve(JSON.parse(data));
+        //     })
+        // });
+        return JSON.parse(f.readFileSync(this.storage_path, 'utf8'));
     }
 
     async getState(username: string) : Promise<UserState | null> {
@@ -81,6 +84,17 @@ class LocalUserManager extends UserManager{
         };
         await this.writeUserState(userStateMap).catch(e => {console.error(e); throw "Failed to write UserStateMap back to disk"});
         return userStateMap[username];
+    }
+
+    async reportUser(username: string): Promise<void> {
+        let userStateMap = await this.loadUserState().catch((e) => { console.error(e); throw "Failed to load UserStateMap" });
+        if (!(username in userStateMap))
+            return;
+
+        userStateMap[username].reportCount = userStateMap[username].reportCount ? userStateMap[username].reportCount + 1 : 1;
+        if(userStateMap[username].reportCount >= 5 ) { //  magic number 5
+            await this.banUser(username).catch((e) => console.error(e));
+        }
     }
 
     async banUser(username: string): Promise<void> {
