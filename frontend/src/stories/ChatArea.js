@@ -111,6 +111,7 @@ const ChatArea = ({ className }) => (
       </div>
     </div>
     <ChatBox className="u-border u-backgroundWhite">
+      {/* Only show this div when there is a pinned message */}
       <div className="u-paddingExtraSmall">
         <ChatMessage isPinned />
       </div>
