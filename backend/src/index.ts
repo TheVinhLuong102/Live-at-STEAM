@@ -9,10 +9,6 @@ type APIResponse = {
   error?: string,
 }
 
-app.get('/', (req, res) => {
-  res.send('<h1>Hello world</h1>');
-});
-
 app.get('/api/getRooms', (req, res) => {
 
   myChatServer.getRooms().then((rooms) =>
@@ -56,6 +52,13 @@ app.get('/admin/shuffleRooms', (req, res) => {
   } as APIResponse));
 });
 
+// we build frontend app to the public folder
+app.use(express.static('public'));
+
+// fallback URL to redirect other requests to react app
+app.get('*', function(req, res) {
+  res.sendFile("/public/index.html", { root: __dirname });
+});
 
 const http_server = app.listen(process.env.PORT || 3600, () => console.log(`Server is listening on port ${process.env.PORT || 3600}`));
 

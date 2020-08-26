@@ -16,7 +16,7 @@ function App() {
             <YoutubeIframe />
           </div>
           <div className="col-sm-4">
-            <Chatbox serverAddress="127.0.0.1:3600" />
+            <Chatbox serverAddress="/" />
           </div>
         </div>
       </div>

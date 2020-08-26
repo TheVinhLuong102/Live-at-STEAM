@@ -1,5 +1,6 @@
 {
   "name": "live-at-steam",
+  "proxy": "http://localhost:3600",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
