@@ -42,7 +42,7 @@ app.post('/login', (req, res) => {
         access_token: response
       } as APIResponse);
     });
-  }).catch(error => res.status(500).json({
+  }).catch(error => res.status(400).json({
     status: -1,
     error
   } as APIResponse));

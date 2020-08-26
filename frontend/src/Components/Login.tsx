@@ -1,33 +1,43 @@
 import React, { Component } from "react";
-import axios from "axios";
 import { useCookies } from "react-cookie";
 
 export default function Login() {
   const [loggedIn, setLoggedIn] = React.useState(false);
+  const [hasError, setHasError] = React.useState(false);
   const [email, updateEmail] = React.useState("");
   const [password, updatePassword] = React.useState("");
-  const [cookies, setCookie, removeCookie] = useCookies(["openedx-jwt"]);
+  const [cookies, setCookie, removeCookie] = useCookies(["live-site-jwt"]);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log(email, password);
+    setHasError(false);
 
     // Login via server
-    // axios.post("http://localhost:3600/login", {
-    //   username: email,
-    //   password
-    // });
+    fetch("/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username: email,
+        password,
+      }),
+    })
+      .then((res) => {
+        return res.json();
+      })
+      .then((data) => {
+        if (data.status == 1) {
+          // Save JWT to cookie
+          setCookie("live-site-jwt", data.access_token, { path: "/" });
 
-    // If success
-
-    // Save JWT to cookie
-    setCookie(
-      "live-site-jwt",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoidGFzaC5mYXNtQGdtYWlsLmNvbSIsImlhdCI6MTU5ODQ4MzE2MH0.vwcnCfTcXIiKY54KnmxdbXEPedoDxCZ2GunvuSsFuK8",
-      { path: "/" }
-    );
-
-    setLoggedIn(true);
+          setHasError(false);
+          setLoggedIn(true);
+        } else {
+          setHasError(true);
+        }
+      })
+      .catch((e) => console.log(e));
   };
 
   const logOut = () => {
@@ -64,6 +74,9 @@ export default function Login() {
         <button className="btn btn-outline-success my-2 my-sm-0" type="submit">
           Login
         </button>
+        {hasError ? (
+          <div className="alert alert-danger">Wrong username or password!</div>
+        ) : null}
       </form>
     </div>
   );
