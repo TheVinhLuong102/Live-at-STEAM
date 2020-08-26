@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import '@gotitinc/design-system/dist/index-steam4vn.min.css';
 import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';

@@ -1,4 +1,6 @@
 import React from "react";
+//@ts-ignore
+import { Button } from '@gotitinc/design-system';
 
 export default function NavBar() {
   return (
@@ -36,12 +38,7 @@ export default function NavBar() {
             type="search"
             placeholder="Type in an username..."
           />
-          <button
-            className="btn btn-outline-success my-2 my-sm-0"
-            type="submit"
-          >
-            Login
-          </button>
+          <Button type="submit">Login</Button>
         </form>
       </div>
     </nav>
