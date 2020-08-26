@@ -1,13 +1,27 @@
-import express from 'express';
+import express, { json } from 'express';
 import ChatServer from './chat_server/server';
+import jwt from 'jsonwebtoken';
 
+require('dotenv').config({path:require('find-config')('.env')})
 const app = express();
+
+app.use(express.json());
 
 type APIResponse = {
   status: number,
   response?: any,
   error?: string,
 }
+
+app.post('/login', (req, res) => {
+  const username: string = req.body.username;
+  if(username == null) {
+    res.status(400).json({"error": "missing params"});
+    return;
+  }
+  const token = jwt.sign({name: username}, process.env.JWT_SECRET_KEY);
+  res.json({access_token: token});
+});
 
 app.get('/api/getRooms', (req, res) => {
 

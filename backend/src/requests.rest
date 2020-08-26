@@ -1,0 +1,6 @@
+POST http://localhost:3600/login
+Content-type: application/json
+
+{
+    "username" : "david"
+}
