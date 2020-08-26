@@ -62,6 +62,14 @@ function ChatMessage({
   );
 }
 
+function SystemMessage({
+  children,
+}) {
+  return (
+    <div className="u-textNegative u-text200 u-fontItalic u-marginBottomExtraSmall">{children}</div>
+  );
+};
+
 const ChatArea = ({ className }) => (
   <div className="u-flex u-flexColumn u-flexGrow-1">
     <div className="u-backgroundWhite u-borderTop u-borderLeft u-borderRight u-paddingExtraSmall u-text200 u-flex u-flexRow">
@@ -120,6 +128,9 @@ const ChatArea = ({ className }) => (
         <ChatMessage />
         <ChatMessage />
         <ChatMessage />
+        <SystemMessage>
+          David Vu vừa bị báo cáo vi phạm nội quy phòng chat.
+        </SystemMessage>
         <ChatMessage />
       </ChatBox.List>
       <ChatBox.Context>
