@@ -1,7 +1,10 @@
 import express from 'express';
+import bodyParser from 'body-parser';
 import ChatServer from './chat_server/server';
+import AuthenticationServer from './authentication/authentication_server';
 
 const app = express();
+app.use(bodyParser.json())
 
 type APIResponse = {
   status: number,
@@ -11,6 +14,15 @@ type APIResponse = {
 
 app.get('/', (req, res) => {
   res.send('<h1>Hello world</h1>');
+});
+
+app.post('/login', (req, res) => {
+  authenticationServer.login(req.body.username, req.body.password).then(() =>
+    res.json({
+      "status": 1,
+      "response": "Login successfully"
+    })
+  );
 });
 
 app.get('/api/getRooms', (req, res) => {
@@ -25,7 +37,6 @@ app.get('/api/getRooms', (req, res) => {
     error: "something went wrong"
   } as APIResponse));
 });
-
 
 app.get('/admin/setMaxRooms', (req, res) => {
 
@@ -61,5 +72,7 @@ const http_server = app.listen(process.env.PORT || 3600, () => console.log(`Serv
 
 const myChatServer = new ChatServer(http_server);
 myChatServer.setup();
+
+const authenticationServer = new AuthenticationServer();
 
 module.exports = app;
