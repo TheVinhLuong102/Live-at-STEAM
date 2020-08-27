@@ -3,7 +3,7 @@ name: build
 on:
   push:
     branches:
-      - hdoan/deploy_with_env
+      - master
 
 jobs:
   build:
@@ -35,14 +35,23 @@ jobs:
       env:
           GITHUB_USERNAME: ${{ secrets.USERNAME }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+          LMS_BASE_URL: ${{ secrets.LMS_BASE_URL }}
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
       with:
         host: ${{ secrets.DROPLET_IP }}
         username: ${{ secrets.DROPLET_USERNAME }}
         password: ${{ secrets.DROPLET_PASSWORD }}
         port: ${{ secrets.DROPLET_SSH_PORT }}
-        envs: GITHUB_USERNAME, GITHUB_TOKEN
+        envs: GITHUB_USERNAME, GITHUB_TOKEN, JWT_SECRET_KEY, LMS_BASE_URL, CLIENT_ID, CLIENT_SECRET
         script: |
           docker stop $(docker ps -a -q)
           docker login --username "$GITHUB_USERNAME" --password "$GITHUB_TOKEN" https://docker.pkg.github.com
           docker pull docker.pkg.github.com/steamforvietnam/live-at-steam/live-steam-dev:master
-          docker run -dit -p 80:3600 docker.pkg.github.com/steamforvietnam/live-at-steam/live-steam-dev:master
+          docker run -dit -p 80:3600 \
+            -e JWT_SECRET_KEY="$JWT_SECRET_KEY" \
+            -e LMS_BASE_URL="$LMS_BASE_URL" \
+            -e CLIENT_ID="$CLIENT_ID" \
+            -e CLIENT_SECRET="$CLIENT_SECRET" \
+            docker.pkg.github.com/steamforvietnam/live-at-steam/live-steam-dev:master

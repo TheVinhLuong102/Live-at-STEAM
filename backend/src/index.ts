@@ -33,12 +33,11 @@ app.post('/login', (req, res) => {
       console.log(response.preferred_username);
       // if not registered
       if(!userState) {
-        try {
-          userState = await UserManager.addUser(response.preferred_username);
-        } catch(e) {
+        const res = await UserManager.addUser(response.preferred_username).catch((e) => {
           console.error(e);
-          res.status(500).json({"error": "Failed to add new user!"});
-        }
+          return res.status(500).json({"error": "Failed to add new user!"});
+        });
+        userState = res;
       }
       return res.json({
         status: 1,
