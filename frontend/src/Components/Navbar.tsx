@@ -1,10 +1,11 @@
 import React from "react";
+import Login from "./Login";
 
 export default function NavBar() {
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light">
       <a className="navbar-brand">
-        <img src="https://assets.steamforvietnam.net/live/assets/images/logo.svg"/>
+        <img src="https://assets.steamforvietnam.net/live/assets/images/logo.svg" />
       </a>
       <button
         className="navbar-toggler"
@@ -30,19 +31,7 @@ export default function NavBar() {
             </a>
           </li>
         </ul>
-        <form className="form-inline my-2 my-lg-20" style={{"float": "right"}}>
-          <input
-            className="form-control mr-sm-2"
-            type="search"
-            placeholder="Type in an username..."
-          />
-          <button
-            className="btn btn-outline-success my-2 my-sm-0"
-            type="submit"
-          >
-            Login
-          </button>
-        </form>
+        <Login />
       </div>
     </nav>
   );
