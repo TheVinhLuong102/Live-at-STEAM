@@ -46,6 +46,17 @@ export default function Login() {
     setLoggedIn(false);
   };
 
+  React.useEffect(() => {
+    const token = cookies["live-site-jwt"];
+
+    if (token) {
+      setLoggedIn(true);
+    } else {
+      setLoggedIn(false);
+    }
+
+  }, [cookies["live-site-jwt"]])
+
   return loggedIn ? (
     <button className="btn btn-outline-danger my-2 my-sm-0" onClick={logOut}>
       Đăng Xuất
