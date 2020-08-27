@@ -3,7 +3,7 @@ name: build
 on:
   push:
     branches:
-      - hdoan/deploy_with_env
+      - master
 
 jobs:
   build:
