@@ -1,6 +1,7 @@
 import express, { json } from 'express';
+import bodyParser from 'body-parser';
 import ChatServer from './chat_server/server';
-import jwt from 'jsonwebtoken';
+import AuthenticationServer from './auth/authentication_server';
 import cookieParser from 'cookie-parser';
 import UserManager, {Role} from './chat_server/member_manager';
 import {jwt_express_auth, check_admin} from './auth/jwt_auth';
@@ -8,6 +9,7 @@ import {jwt_express_auth, check_admin} from './auth/jwt_auth';
 require('dotenv').config();
 
 const app = express();
+app.use(bodyParser.json())
 
 app.use(express.json());
 app.use(cookieParser());
@@ -20,20 +22,31 @@ type APIResponse = {
 
 app.post('/login', (req, res) => {
   const username: string = req.body.username;
-  if(username == null) {
+  const password: string = req.body.password;
+  if(username == null || password == null) {
     return res.status(400).json({"error": "missing params"});
   }
-  const token = jwt.sign({name: username}, process.env.JWT_SECRET_KEY);
-  UserManager.getState(username).then(async (userState) => {
-    // if not registered
-    if(!userState) {
-      await UserManager.addUser(username).catch((e) => {
-        console.error(e);
-        return res.status(500).json({"error": "Failed to add new user!"});
-      })
-    }
-    return res.json({access_token: token});
-  });
+
+  authenticationServer.login(username, password).then((response) => {
+    UserManager.getState(username).then(async (userState) => {
+      // if not registered
+      if(!userState) {
+        await UserManager.addUser(username).catch((e) => {
+          console.error(e);
+          return res.status(500).json({"error": "Failed to add new user!"});
+        })
+      }
+      
+      return res.json({
+        status: 1,
+        access_token: response
+      } as APIResponse);
+    });
+  }).catch(error => res.status(400).json({
+    status: -1,
+    error
+  } as APIResponse));
+
 });
 
 app.get('/api/getRooms',  (req, res) => {
@@ -103,5 +116,7 @@ const http_server = app.listen(process.env.PORT || 3600, () => console.log(`Serv
 
 const myChatServer = new ChatServer(http_server, UserManager);
 myChatServer.setup();
+
+const authenticationServer = new AuthenticationServer();
 
 module.exports = app;
