@@ -2,7 +2,7 @@ import http from "http";
 import { assert } from "console";
 import { isBuffer } from "util";
 import { Namespace } from "socket.io";
-import { UserManager, Role } from "./member_manager";
+import { UserManager, Role, UserStatus } from "./member_manager";
 import jwt from "jsonwebtoken";
 import {verifyTokenAndGetUserState} from "../auth/jwt_auth";
 import { Socket } from "dgram";
@@ -10,7 +10,7 @@ import { Socket } from "dgram";
 type SessionStore = {
     isAuthenticated: boolean,
     username?: string,
-    isAdmin?: boolean
+    isAdmin?: boolean,
 };
 
 type SocketClientID = string;
@@ -223,10 +223,13 @@ export default class NonDistributedChatServer {
 
     setupSocketEvents(socket: SocketIO.Socket) {
         // "thread" safe
-        socket.on("message", (msg: string) => {
+        socket.on("message", async (msg: string) => {
             if(!this.localSocketState[socket.id].isAuthenticated)
                 return;
 
+            let userState = await this.userManager.getState(this.localSocketState[socket.id].username);
+            if(userState.status == UserStatus.BANNED)
+                return;
             let io: SocketIO.Namespace | SocketIO.Server = this.io;
             Object.keys(socket.rooms).forEach((r) => (io = io.to(r)));
             io.emit("message", {
@@ -249,11 +252,19 @@ export default class NonDistributedChatServer {
             } as NewMessagePayload); 
         });
 
-        socket.on("join_room", (roomName: string) => {
+        socket.on("join_room", async (roomName: string) => {
             // only admin can join room
             if(!this.localSocketState[socket.id].isAuthenticated || !this.localSocketState[socket.id].isAdmin)
                 return;
 
+            if(!(await this.getRoomNames()).includes(roomName)) {
+            
+                this.io.to(socket.id).emit("join_room_resp", {
+                    status: -1,
+                    message: `Failed to join room: ${roomName}, becasue the room doesn't exist`,
+                } as JoinRoomResponse);
+                return
+            }
             this.socketLocalJoinRoom(socket, roomName)
                 .then(() => {
                     // broadcast to all participant of the room that a new member has joined
@@ -306,8 +317,9 @@ export default class NonDistributedChatServer {
         // "thread" safe
         this.io.use((socket, next) => {
             // TODO(davidvu): implement JWT token verification
-            if(socket.handshake.query.token) {
+            if(socket.handshake.query.token && socket.handshake.query.token != "") {
                 verifyTokenAndGetUserState(socket.handshake.query.token).then((userState) => {
+                    console.log(userState);
                     this.localSocketState[socket.id] = {
                         isAuthenticated: true,
                         username: userState.username,

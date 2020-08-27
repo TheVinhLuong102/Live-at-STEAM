@@ -32,7 +32,7 @@ app.post('/login', (req, res) => {
     UserManager.getState(response.preferred_username).then(async (userState) => {
       // if not registered
       if(!userState) {
-        await UserManager.addUser(username).catch((e) => {
+        await UserManager.addUser(response.preferred_username).catch((e) => {
           console.error(e);
           return res.status(500).json({"error": "Failed to add new user!"});
         })
@@ -107,7 +107,7 @@ app.get('/api/report', [jwt_express_auth], (req, res) => {
   }
   let target_user: string = req.query.target_user;
   UserManager.reportUser(target_user).then(() => {
-    return res.json({ status: 1, response: `User ${target_user} has been report.` } as APIResponse);
+    return res.json({ status: 1, response: `User ${target_user} has been reported.` } as APIResponse);
   });
 });
 
