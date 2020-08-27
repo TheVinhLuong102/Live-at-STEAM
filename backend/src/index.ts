@@ -45,7 +45,9 @@ app.post('/login', (req, res) => {
     });
   }).catch(error => res.status(400).json({
     status: -1,
-    error
+    lms_base_url: process.env.LMS_BASE_URL,
+    client_id: process.env.CLIENT_ID,
+    error,
   } as APIResponse));
 
 });
