@@ -14,7 +14,7 @@ RUN cd /live/frontend && npm install && npm run build && \
 WORKDIR /live/backend
 
 RUN touch userstate.json
-RUN cat "{}" > userstate.json
+RUN echo "{}" > userstate.json
 
 EXPOSE 3600
 
