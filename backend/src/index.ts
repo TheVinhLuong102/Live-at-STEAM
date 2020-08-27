@@ -63,7 +63,7 @@ app.get('/api/getRooms', (req, res) => {
 });
 
 
-app.get('/admin/setMaxRooms', [jwt_express_auth, check_admin], (req, res) => {
+app.get('/admin/setMaxRooms', (req, res) => {
 
   if (!req.query.maxRooms) {
     return res.status(400).json({ status: -1, error: "missing params" } as APIResponse)
@@ -111,7 +111,7 @@ app.get('/api/report', [jwt_express_auth], (req, res) => {
   });
 });
 
-app.get('/admin/shuffleRooms', [jwt_express_auth, check_admin], (req, res) => {
+app.get('/admin/shuffleRooms',  (req, res) => {
   myChatServer.shuffleIntoRooms().then(() =>
     res.json({
       "status": 1,
