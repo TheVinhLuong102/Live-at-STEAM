@@ -9,7 +9,6 @@ export async function verifyTokenAndGetUserState(token: string): Promise<UserSta
                 return reject("Failed to verify JWT Token");
             }
             UserManager.getState(user.user).then(async (userState) => {
-                console.log(userState);
                 // if not registered
                 if(!userState) {
                     reject(new Error("User doens't exist"));

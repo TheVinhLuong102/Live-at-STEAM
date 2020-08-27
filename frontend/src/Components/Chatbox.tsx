@@ -58,6 +58,11 @@ function ChatMessage({
   }
 }
 
+type Room = {
+  name: string,
+  count: number
+};
+
 type ServerMessage = {
   username?: string;
   message?: string | null | undefined;
@@ -71,6 +76,7 @@ export default function Chatbox({ serverAddress }: { serverAddress: string }) {
   const [messageInput, setMessageInput] = React.useState("");
   const [cookies] = useCookies(["live-site-jwt"]);
   const [isSignedIn, setIsSignedIn] = React.useState(false);
+  const [rooms, setRooms] = React.useState([] as Room[]);
 
   const loadRooms = (event: any) => {
     event.preventDefault();
@@ -80,15 +86,18 @@ export default function Chatbox({ serverAddress }: { serverAddress: string }) {
       headers: {
         "Content-type": "application/json",
       },
-    }).then((r) => r.json())
+    })
+      .then((r) => r.json())
       .then((r) => {
-        
-        updateMessages([...messages]); // have to do this to trigger rerender
+        console.log(r);
+        let response: Room[] = r.response;
+        console.log(response);
+        setRooms(response);
       })
       .catch((e) => {
         console.error(e);
       });
-  }
+  };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -205,8 +214,6 @@ export default function Chatbox({ serverAddress }: { serverAddress: string }) {
     if (objDiv) objDiv.scrollTop = objDiv.scrollHeight;
   });
 
-  
-
   return (
     <div>
       <div className="panel panel-primary">
@@ -222,17 +229,12 @@ export default function Chatbox({ serverAddress }: { serverAddress: string }) {
               <span className="glyphicon glyphicon-chevron-down"></span>
             </button>
             <ul className="dropdown-menu slidedown">
-              <li>
-                <a href="http://develoteca.com">
-                  <span className="glyphicon glyphicon-refresh"></span>
-                  Develoteca
-                </a>
-              </li>
-              <li>
-                <a href="https://www.youtube.com/user/dimit28">
-                  <span className="glyphicon glyphicon-ok-sign"></span>Youtube
-                </a>
-              </li>
+              {rooms.sort((a, b) => a.count - b.count) &&
+                rooms.map((r, i) => 
+                  <li key={i}>
+                      {r.name} ({r.count})
+                  </li>
+                )}
             </ul>
           </div>
         </div>
