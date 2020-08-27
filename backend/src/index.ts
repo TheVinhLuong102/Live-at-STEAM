@@ -4,8 +4,8 @@ import ChatServer from './chat_server/server';
 import jwt from 'jsonwebtoken';
 import AuthenticationServer from './auth/authentication_server';
 import cookieParser from 'cookie-parser';
-import UserManager, { Role, UserState} from './chat_server/member_manager';
-import { jwt_express_auth, check_admin } from './auth/jwt_auth';
+import UserManager, { Role, UserState } from './chat_server/member_manager';
+import { jwt_express_auth, check_admin, DecodedUserData} from './auth/jwt_auth';
 
 require('dotenv').config();
 
@@ -33,14 +33,16 @@ app.post('/login', (req, res) => {
       console.log(response.preferred_username);
       // if not registered
       if(!userState) {
-        const _ = await UserManager.addUser(response.preferred_username).catch((e) => {
+        try {
+          userState = await UserManager.addUser(response.preferred_username);
+        } catch(e) {
           console.error(e);
-          return res.status(500).json({"error": "Failed to add new user!"});
-        });
+          res.status(500).json({"error": "Failed to add new user!"});
+        }
       }
       return res.json({
         status: 1,
-        access_token: jwt.sign({user: userState.username}, process.env.JWT_SECRET_KEY)
+        access_token: jwt.sign({user: userState.username} as DecodedUserData, process.env.JWT_SECRET_KEY)
       } as APIResponse);
     });
   }).catch(error => res.status(400).json({
@@ -81,7 +83,6 @@ app.get('/admin/setMaxRooms', (req, res) => {
 });
 
 app.get('/admin/unban', [jwt_express_auth, check_admin], (req, res) => {
-
   if (!req.query.target_user) {
     return res.status(400).json({ status: -1, error: "missing params" } as APIResponse)
   }
@@ -90,6 +91,23 @@ app.get('/admin/unban', [jwt_express_auth, check_admin], (req, res) => {
     res.json({
       "status": 1,
       "response": `Successfully unbanned ${target_user}`
+    } as APIResponse)
+  ).catch(e => res.status(500).json({
+    status: -1,
+    error: "something went wrong"
+  } as APIResponse));
+});
+
+
+app.get('/admin/ban', [jwt_express_auth, check_admin], (req, res) => {
+  if (!req.query.target_user) {
+    return res.status(400).json({ status: -1, error: "missing params" } as APIResponse)
+  }
+  let target_user: string = req.query.target_user;
+  UserManager.banUser(target_user).then(() =>
+    res.json({
+      "status": 1,
+      "response": `Successfully banned ${target_user}`
     } as APIResponse)
   ).catch(e => res.status(500).json({
     status: -1,

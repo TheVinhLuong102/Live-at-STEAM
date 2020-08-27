@@ -110,7 +110,7 @@ class LocalUserManager extends UserManager{
     async unbanUser(username: string): Promise<void> {
         let userStateMap = await this.loadUserState().catch((e) => { console.error(e); throw "Failed to load UserStateMap" });
         if (!(username in userStateMap))
-            return;
+            throw "User doesn't exist";
 
         userStateMap[username].status = UserStatus.NORMAL;
         await this.writeUserState(userStateMap).catch(e => {console.error(e); throw "Failed to write UserStateMap back to disk"});
@@ -120,7 +120,7 @@ class LocalUserManager extends UserManager{
         let userStateMap = await this.loadUserState().catch((e) => { console.error(e); throw "Failed to load UserStateMap" });
 
         if (!(username in userStateMap))
-            return;
+            throw "User doesn't exist";
 
         userStateMap[username].status = UserStatus.BANNED;
         console.log(userStateMap[username])

@@ -1,14 +1,18 @@
 import jwt from 'jsonwebtoken';
 import UserManager, {Role, UserState} from "../chat_server/member_manager";
 
+export type DecodedUserData = {
+    user: string
+}
+
 export async function verifyTokenAndGetUserState(token: string): Promise<UserState>{
     return new Promise((resolve, reject) => {
-        jwt.verify(token, process.env.JWT_SECRET_KEY, (err, user: {user: string}) => {
+        jwt.verify(token, process.env.JWT_SECRET_KEY, (err, userdata: DecodedUserData) => {
             if(err) {
                 console.error(err);
                 return reject("Failed to verify JWT Token");
             }
-            UserManager.getState(user.user).then(async (userState) => {
+            UserManager.getState(userdata.user).then(async (userState) => {
                 // if not registered
                 if(!userState) {
                     reject(new Error("User doens't exist"));
