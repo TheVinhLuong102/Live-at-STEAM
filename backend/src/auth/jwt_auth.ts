@@ -31,11 +31,9 @@ export function check_admin(req, res, next) {
 }
 
 export function jwt_express_auth(req, res, next) {
-    console.log(req.headers)
     const authHeader  = req.headers['authorization'];
-    const authCookie = req.cookies['authorization'];
+    const authCookie = req.cookies['live-site-jwt'];
     const token = (authHeader && authHeader.split(" ")[1] ) || authCookie;
-    console.log(authHeader);
     if (token == null) return res.status(403).json({"error": "No access token provided"});
 
     verifyTokenAndGetUserState(token).catch((e) => {

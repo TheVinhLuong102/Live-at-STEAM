@@ -30,7 +30,6 @@ app.post('/login', (req, res) => {
 
   authenticationServer.login(username, password).then((response) => {
     UserManager.getState(response.preferred_username).then(async (userState) => {
-      console.log(response.preferred_username);
       // if not registered
       if(!userState) {
         const res = await UserManager.addUser(response.preferred_username).catch((e) => {

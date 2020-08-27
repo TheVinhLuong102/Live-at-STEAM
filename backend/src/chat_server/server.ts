@@ -4,13 +4,14 @@ import { isBuffer } from "util";
 import { Namespace } from "socket.io";
 import { UserManager, Role, UserStatus } from "./member_manager";
 import jwt from "jsonwebtoken";
-import {verifyTokenAndGetUserState} from "../auth/jwt_auth";
+import { verifyTokenAndGetUserState } from "../auth/jwt_auth";
 import { Socket } from "dgram";
 
 type SessionStore = {
     isAuthenticated: boolean,
     username?: string,
     isAdmin?: boolean,
+    isBanned?: boolean
 };
 
 type SocketClientID = string;
@@ -49,14 +50,44 @@ function shuffleArray(array: any[]) {
 export default class NonDistributedChatServer {
     io: SocketIO.Server;
     userManager: UserManager;
-    localSocketState: { [key: string] : SessionStore };
-    private maxNumRooms: Number;
+    localSocketState: { [key: string]: SessionStore };
+    private maxNumRooms: number;
+    userStateUpdateInterval: number;
 
-    constructor(http_server: http.Server, userManager: UserManager) {
+    constructor(http_server: http.Server, userManager: UserManager, userStateUpdateInterval: number = 1000) {
         this.io = require("socket.io")(http_server);
         this.maxNumRooms = 1;
         this.userManager = userManager;
         this.localSocketState = {};
+        this.userStateUpdateInterval = userStateUpdateInterval;
+        this.updateUserStateRoutine(); // start routine
+    }
+
+
+    async updateUserStateRoutine() {
+        // Since fetching UserState is quite expensive, we dont want 
+        // to refetch UserState on every message. 
+        // This routine fetch the state for all local users(sockets) periodically
+        console.log(`updating UserState for ${Object.keys(this.localSocketState).length} clients`)
+        await Promise.all(Object.keys(this.localSocketState).map(socketId =>
+            new Promise((resolve, reject) => {
+                const sessionStore = this.localSocketState[socketId];
+                if (!sessionStore.isAuthenticated) // ignore guests
+                    return resolve();
+                
+                this.userManager.getState(sessionStore.username).then((userState) => {
+                    if (!userState) {
+                        return resolve();
+                    }
+                    sessionStore.isAdmin = userState.role == Role.ADMIN;
+                    sessionStore.isBanned = userState.status == UserStatus.BANNED;
+                    resolve();
+                }).catch((e) => {
+                    reject(e);
+                });
+            })
+        ));
+        setTimeout(() => this.updateUserStateRoutine(), this.userStateUpdateInterval);
     }
 
     async getRooms(): Promise<Room[]> {
@@ -120,13 +151,13 @@ export default class NonDistributedChatServer {
         });
     }
 
-    async setMaxNumRooms(num: Number): Promise<void> {
+    async setMaxNumRooms(num: number): Promise<void> {
         // NOT "thread" safe
         // Note: For distributed instances usecase, we need to SET this value from redis
         this.maxNumRooms = num;
     }
 
-    async getMaxNumRooms(): Promise<Number> {
+    async getMaxNumRooms(): Promise<number> {
         // NOT "thread" safe
         // Note: For distributed instances usecase, we need to GET this value from redis
         return this.maxNumRooms;
@@ -224,23 +255,20 @@ export default class NonDistributedChatServer {
     setupSocketEvents(socket: SocketIO.Socket) {
         // "thread" safe
         socket.on("message", async (msg: string) => {
-            if(!this.localSocketState[socket.id].isAuthenticated)
+            if (!this.localSocketState[socket.id].isAuthenticated || this.localSocketState[socket.id].isBanned)
                 return;
 
-            let userState = await this.userManager.getState(this.localSocketState[socket.id].username);
-            if(userState.status == UserStatus.BANNED)
-                return;
             let io: SocketIO.Namespace | SocketIO.Server = this.io;
             Object.keys(socket.rooms).forEach((r) => (io = io.to(r)));
             io.emit("message", {
                 username: this.localSocketState[socket.id].username,
                 msg: msg,
                 type: "normal"
-            } as NewMessagePayload); 
+            } as NewMessagePayload);
         });
 
         socket.on("global_message", (msg: string) => {
-            if(!this.localSocketState[socket.id].isAuthenticated || !this.localSocketState[socket.id].isAdmin)
+            if (!this.localSocketState[socket.id].isAuthenticated || !this.localSocketState[socket.id].isAdmin)
                 return;
 
             let io: SocketIO.Server = this.io;
@@ -249,15 +277,15 @@ export default class NonDistributedChatServer {
                 username: this.localSocketState[socket.id].username,
                 msg: msg,
                 type: "global"
-            } as NewMessagePayload); 
+            } as NewMessagePayload);
         });
 
         socket.on("join_room", async (roomName: string) => {
             // only admin can join room
-            if(!this.localSocketState[socket.id].isAuthenticated || !this.localSocketState[socket.id].isAdmin)
+            if (!this.localSocketState[socket.id].isAuthenticated || !this.localSocketState[socket.id].isAdmin)
                 return;
 
-            if(!(await this.getRoomNames()).includes(roomName)) {
+            if (!(await this.getRoomNames()).includes(roomName)) {
                 console.log(roomName);
                 this.io.to(socket.id).emit("join_room_resp", {
                     status: -1,
@@ -293,7 +321,7 @@ export default class NonDistributedChatServer {
                 .then(() => {
                     // broadcast to all participant of the room that a new member has joined
                     this.io.to(roomName).emit("new_member_joined", {
-                        username: this.localSocketState[socket.id].username ,
+                        username: this.localSocketState[socket.id].username,
                         room: roomName,
                     } as NewMemberJoined);
 
@@ -317,27 +345,27 @@ export default class NonDistributedChatServer {
         // "thread" safe
         this.io.use((socket, next) => {
             // TODO(davidvu): implement JWT token verification
-            if(socket.handshake.query.token && socket.handshake.query.token != "") {
+            if (socket.handshake.query.token && socket.handshake.query.token != "") {
                 verifyTokenAndGetUserState(socket.handshake.query.token).then((userState) => {
                     this.localSocketState[socket.id] = {
                         isAuthenticated: true,
                         username: userState.username,
                         isAdmin: userState.role == Role.ADMIN,
-                    } 
+                    }
                     next();
                 }).catch((e) => {
                     console.error(e);
                     this.localSocketState[socket.id] = {
                         isAuthenticated: false,
                         username: "guest"
-                    } 
+                    }
                     next();
                 });
             } else {
                 this.localSocketState[socket.id] = {
                     isAuthenticated: false,
                     username: "guest"
-                } 
+                }
                 next();
             }
         });
@@ -362,8 +390,9 @@ export default class NonDistributedChatServer {
                         throw `${socket.id} couldn't setup socket events because failed to join a room!`
                     });
             }).catch(e => console.error(e));
-            
+
             socket.on("disconnect", () => {
+                delete this.localSocketState[socket.id];
                 console.log("disconnected");
             });
         });
