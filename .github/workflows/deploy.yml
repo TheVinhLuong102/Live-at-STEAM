@@ -50,7 +50,7 @@ jobs:
           docker login --username "$GITHUB_USERNAME" --password "$GITHUB_TOKEN" https://docker.pkg.github.com
           docker pull docker.pkg.github.com/steamforvietnam/live-at-steam/live-steam-dev:master
           docker run -dit -p 80:3600 \
-            -e JWT_SECRET_KEY="$JWK_SECRET_KEY" \
+            -e JWT_SECRET_KEY="$JWT_SECRET_KEY" \
             -e LMS_BASE_URL="$LMS_BASE_URL" \
             -e CLIENT_ID="$CLIENT_ID" \
             -e CLIENT_SECRET="$CLIENT_SECRET" \
