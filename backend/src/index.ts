@@ -44,12 +44,11 @@ app.post('/login', (req, res) => {
       } as APIResponse);
     });
   }).catch(error => res.status(400).json({
-    status: -1,
+    status: -100,
     lms_base_url: process.env.LMS_BASE_URL,
     client_id: process.env.CLIENT_ID,
     error,
   } as APIResponse));
-
 });
 
 app.get('/api/getRooms', (req, res) => {
