@@ -3,6 +3,8 @@ import { assert } from "console";
 import { isBuffer } from "util";
 import { Namespace } from "socket.io";
 import { UserManager } from "./member_manager";
+import jwt from "jsonwebtoken";
+import {verifyTokenAndGetUserState} from "../auth/jwt_auth";
 
 type SessionStore = {
     isAuthenticated: boolean;
@@ -255,10 +257,16 @@ export default class NonDistributedChatServer {
     setup() {
         // "thread" safe
         this.io.use((socket, next) => {
-            let handshake = socket.handshake.query.userToken;
             // TODO(davidvu): implement JWT token verification
-            
-            next();
+            verifyTokenAndGetUserState(socket.handshake.query.userToken).then((userState) => {
+                let username = userState.name;
+                this.localSocketState[socket.id] = {
+                    isAuthenticated: true,
+                    username: username
+                } 
+            }).catch((e) => {
+                next();
+            });
         });
 
         this.io.on("connection", (socket) => {

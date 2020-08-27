@@ -26,7 +26,7 @@ app.post('/login', (req, res) => {
   if(username == null || password == null) {
     return res.status(400).json({"error": "missing params"});
   }
-
+  
   authenticationServer.login(username, password).then((response) => {
     UserManager.getState(username).then(async (userState) => {
       // if not registered

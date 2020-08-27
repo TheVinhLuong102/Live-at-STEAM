@@ -2,6 +2,10 @@ import axios from "axios";
 import querystring from "querystring";
 import jwt from 'jsonwebtoken';
 
+type LMS_DECODED_TOKEN = {
+  preferred_username?: string
+}
+
 export default class AuthenticationServer {
   async login(username: string, password: string): Promise < string > {
     const apiBaseUrl = process.env.LMS_BASE_URL;
@@ -21,12 +25,12 @@ export default class AuthenticationServer {
           apiBaseUrl + `/oauth2/access_token/`,
           query,
         ).then((response) => {
-          const user = jwt.decode(response.data.access_token)?.preferred_username;
+          const user = (jwt.decode(response.data.access_token) as LMS_DECODED_TOKEN)?.preferred_username;
           if (!user) {
             return reject("Invalid JWT token received");
           }
 
-          resolve(jwt.sign({name: username}, process.env.JWT_SECRET_KEY));
+          resolve(jwt.sign({name: user}, process.env.JWT_SECRET_KEY));
         })
         .catch((e) => reject(e.message));
     });

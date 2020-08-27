@@ -22,11 +22,13 @@ export type UserState = {
 
 export abstract class UserManager {
     abstract async getState(username: string) : Promise<UserState | null>;
-    abstract async addUser(userState: UserState): Promise<UserState>;
+    abstract async addUser(username: string, status: UserStatus, role: Role): Promise<UserState>;
     abstract async banUser(username: string): Promise<void>;
     abstract async unbanUser(username: string): Promise<void>;
     
 }
+
+let ADMIN_LIST = [];
 
 /**
  * Temporary solution for storing UserState
@@ -77,8 +79,12 @@ class LocalUserManager extends UserManager{
         return userStateMap[username] ? userStateMap[username] : null;
     }
 
-    async addUser(username, status = UserStatus.NORMAL, role = Role.MEMBER): Promise<UserState> {
+    async addUser(username: string, status = UserStatus.NORMAL, role = Role.MEMBER): Promise<UserState> {
         let userStateMap = await this.loadUserState().catch((e) => { console.error(e); throw "Failed to load UserStateMap" });
+        
+        if(ADMIN_LIST.includes(username))
+            role = Role.ADMIN;
+
         userStateMap[username] = {
             username: username,
             status: status,
