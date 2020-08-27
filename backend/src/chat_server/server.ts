@@ -258,7 +258,7 @@ export default class NonDistributedChatServer {
                 return;
 
             if(!(await this.getRoomNames()).includes(roomName)) {
-            
+                console.log(roomName);
                 this.io.to(socket.id).emit("join_room_resp", {
                     status: -1,
                     message: `Failed to join room: ${roomName}, becasue the room doesn't exist`,
