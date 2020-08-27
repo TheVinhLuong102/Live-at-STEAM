@@ -29,3 +29,20 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
         dockerfile: Dockerfile
         tags: master
+
+    - name: Deploy package to digitalocean
+      uses: appleboy/ssh-action@master
+      env:
+          GITHUB_USERNAME: ${{ secrets.USERNAME }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        host: ${{ secrets.DROPLET_IP }}
+        username: ${{ secrets.DROPLET_USERNAME }}
+        password: ${{ secrets.DROPLET_PASSWORD }}
+        port: ${{ secrets.DROPLET_SSH_PORT }}
+        envs: GITHUB_USERNAME, GITHUB_TOKEN
+        script: |
+          docker stop $(docker ps -a -q)
+          docker login --username "$GITHUB_USERNAME" --password "$GITHUB_TOKEN" https://docker.pkg.github.com
+          docker pull docker.pkg.github.com/steamforvietnam/live-at-steam/live-steam-dev:master
+          docker run -dit -p 80:3600 docker.pkg.github.com/steamforvietnam/live-at-steam/live-steam-dev:master

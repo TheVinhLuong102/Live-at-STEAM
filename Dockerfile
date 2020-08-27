@@ -6,9 +6,13 @@ WORKDIR /live
 
 COPY . /live
 
-RUN cd /live/backend && npm install && \
-  cd /live/frontend && npm install && npm run build && \
+RUN cd /live/backend && npm install
+
+RUN cd /live/frontend && npm install && npm run build && \
   cp -R /live/frontend/build/. /live/backend/public/
 
 WORKDIR /live/backend
+
+EXPOSE 3600
+
 CMD ["npm", "start", "-b", "0.0.0.0"]
