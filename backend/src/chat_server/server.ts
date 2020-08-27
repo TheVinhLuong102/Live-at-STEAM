@@ -305,21 +305,29 @@ export default class NonDistributedChatServer {
         // "thread" safe
         this.io.use((socket, next) => {
             // TODO(davidvu): implement JWT token verification
-            verifyTokenAndGetUserState(socket.handshake.query.userToken).then((userState) => {
-                this.localSocketState[socket.id] = {
-                    isAuthenticated: true,
-                    username: userState.username,
-                    isAdmin: userState.role == Role.ADMIN,
-                } 
-                next();
-            }).catch((e) => {
-                console.error(e);
+            if(socket.handshake.query.userToken) {
+                verifyTokenAndGetUserState(socket.handshake.query.userToken).then((userState) => {
+                    this.localSocketState[socket.id] = {
+                        isAuthenticated: true,
+                        username: userState.username,
+                        isAdmin: userState.role == Role.ADMIN,
+                    } 
+                    next();
+                }).catch((e) => {
+                    console.error(e);
+                    this.localSocketState[socket.id] = {
+                        isAuthenticated: false,
+                        username: "guest"
+                    } 
+                    next();
+                });
+            } else {
                 this.localSocketState[socket.id] = {
                     isAuthenticated: false,
                     username: "guest"
                 } 
                 next();
-            });
+            }
         });
 
         this.io.on("connection", (socket) => {

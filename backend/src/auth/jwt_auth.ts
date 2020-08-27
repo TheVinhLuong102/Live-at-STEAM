@@ -36,6 +36,7 @@ export function jwt_express_auth(req, res, next) {
     const authHeader  = req.headers['authorization'];
     const authCookie = req.cookies['authorization'];
     const token = (authHeader && authHeader.split(" ")[1] ) || authCookie;
+    console.log(authHeader);
     if (token == null) return res.status(403).json({"error": "No access token provided"});
 
     verifyTokenAndGetUserState(token).catch((e) => {
