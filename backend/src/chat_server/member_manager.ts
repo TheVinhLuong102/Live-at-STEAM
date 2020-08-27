@@ -24,6 +24,8 @@ export abstract class UserManager {
     abstract async getState(username: string) : Promise<UserState | null>;
     abstract async addUser(userState: UserState): Promise<UserState>;
     abstract async banUser(username: string): Promise<void>;
+    abstract async unbanUser(username: string): Promise<void>;
+    
 }
 
 /**
@@ -97,6 +99,15 @@ class LocalUserManager extends UserManager{
         } else {
             await this.writeUserState(userStateMap).catch(e => {console.error(e); throw "Failed to write UserStateMap back to disk"});
         }
+    }
+
+    async unbanUser(username: string): Promise<void> {
+        let userStateMap = await this.loadUserState().catch((e) => { console.error(e); throw "Failed to load UserStateMap" });
+        if (!(username in userStateMap))
+            return;
+
+        userStateMap[username].status = UserStatus.NORMAL;
+        await this.writeUserState(userStateMap).catch(e => {console.error(e); throw "Failed to write UserStateMap back to disk"});
     }
 
     async banUser(username: string): Promise<void> {
