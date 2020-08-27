@@ -28,7 +28,7 @@ export abstract class UserManager {
     
 }
 
-let ADMIN_LIST = [];
+let ADMIN_LIST = ["s4vadmin", "tuananh-pham", "hungdoan", "lemailan12", "Rosie", "Joy_Vu"];
 
 /**
  * Temporary solution for storing UserState

@@ -56,6 +56,7 @@ export default class NonDistributedChatServer {
         this.io = require("socket.io")(http_server);
         this.maxNumRooms = 1;
         this.userManager = userManager;
+        this.localSocketState = {};
     }
 
     async getRooms(): Promise<Room[]> {
@@ -305,8 +306,8 @@ export default class NonDistributedChatServer {
         // "thread" safe
         this.io.use((socket, next) => {
             // TODO(davidvu): implement JWT token verification
-            if(socket.handshake.query.userToken) {
-                verifyTokenAndGetUserState(socket.handshake.query.userToken).then((userState) => {
+            if(socket.handshake.query.token) {
+                verifyTokenAndGetUserState(socket.handshake.query.token).then((userState) => {
                     this.localSocketState[socket.id] = {
                         isAuthenticated: true,
                         username: userState.username,
