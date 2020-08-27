@@ -311,6 +311,7 @@ export default class NonDistributedChatServer {
                     username: userState.username,
                     isAdmin: userState.role == Role.ADMIN,
                 } 
+                next();
             }).catch((e) => {
                 console.error(e);
                 this.localSocketState[socket.id] = {
