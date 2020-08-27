@@ -7,7 +7,7 @@ type LMS_DECODED_TOKEN = {
 }
 
 export default class AuthenticationServer {
-  async login(username: string, password: string): Promise < string > {
+  async login(username: string, password: string): Promise < LMS_DECODED_TOKEN > {
     const apiBaseUrl = process.env.LMS_BASE_URL;
 
     const payload = {
@@ -30,7 +30,7 @@ export default class AuthenticationServer {
             return reject("Invalid JWT token received");
           }
 
-          resolve(jwt.sign({name: user}, process.env.JWT_SECRET_KEY));
+          resolve(jwt.decode(response.data.access_token) as LMS_DECODED_TOKEN);
         })
         .catch((e) => reject(e.message));
     });
