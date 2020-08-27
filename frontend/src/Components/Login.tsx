@@ -48,7 +48,7 @@ export default function Login() {
 
   return loggedIn ? (
     <button className="btn btn-outline-danger my-2 my-sm-0" onClick={logOut}>
-      Logout
+      Đăng Xuất
     </button>
   ) : (
     <div>
@@ -72,10 +72,10 @@ export default function Login() {
           placeholder="Password"
         />
         <button className="btn btn-outline-success my-2 my-sm-0" type="submit">
-          Login
+          Đăng Nhập
         </button>
         {hasError ? (
-          <div className="alert alert-danger">Wrong username or password!</div>
+          <div className="alert alert-danger">Sai username hoặc mật khẩu!</div>
         ) : null}
       </form>
     </div>
