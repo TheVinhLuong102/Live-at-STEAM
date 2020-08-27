@@ -3,20 +3,16 @@ import UserManager, {Role, UserState} from "../chat_server/member_manager";
 
 export async function verifyTokenAndGetUserState(token: string): Promise<UserState>{
     return new Promise((resolve, reject) => {
-        jwt.verify(token, process.env.JWT_SECRET_KEY, (err, user: {name: string}) => {
+        jwt.verify(token, process.env.JWT_SECRET_KEY, (err, user: {user: string}) => {
             if(err) {
                 console.error(err);
                 return reject("Failed to verify JWT Token");
             }
-            UserManager.getState(user.name).then(async (userState) => {
+            UserManager.getState(user.user).then(async (userState) => {
+                console.log(userState);
                 // if not registered
                 if(!userState) {
-                    UserManager.addUser(user.name).then((userState) => {
-                        resolve(userState);
-                    }).catch((e) => {
-                        console.error(e);
-                        reject(new Error("Failed to add new user"));
-                    });
+                    reject(new Error("User doens't exist"));
                 } else {
                     resolve(userState);
                 }

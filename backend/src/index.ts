@@ -4,7 +4,7 @@ import ChatServer from './chat_server/server';
 import jwt from 'jsonwebtoken';
 import AuthenticationServer from './auth/authentication_server';
 import cookieParser from 'cookie-parser';
-import UserManager, { Role } from './chat_server/member_manager';
+import UserManager, { Role, UserState} from './chat_server/member_manager';
 import { jwt_express_auth, check_admin } from './auth/jwt_auth';
 
 require('dotenv').config();
@@ -30,14 +30,14 @@ app.post('/login', (req, res) => {
 
   authenticationServer.login(username, password).then((response) => {
     UserManager.getState(response.preferred_username).then(async (userState) => {
+      console.log(response.preferred_username);
       // if not registered
       if(!userState) {
-        await UserManager.addUser(response.preferred_username).catch((e) => {
+        const _ = await UserManager.addUser(response.preferred_username).catch((e) => {
           console.error(e);
           return res.status(500).json({"error": "Failed to add new user!"});
-        })
+        });
       }
-      
       return res.json({
         status: 1,
         access_token: jwt.sign({user: userState.username}, process.env.JWT_SECRET_KEY)

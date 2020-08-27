@@ -319,7 +319,6 @@ export default class NonDistributedChatServer {
             // TODO(davidvu): implement JWT token verification
             if(socket.handshake.query.token && socket.handshake.query.token != "") {
                 verifyTokenAndGetUserState(socket.handshake.query.token).then((userState) => {
-                    console.log(userState);
                     this.localSocketState[socket.id] = {
                         isAuthenticated: true,
                         username: userState.username,

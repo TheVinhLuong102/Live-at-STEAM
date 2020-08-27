@@ -75,6 +75,7 @@ class LocalUserManager extends UserManager{
     }
 
     async getState(username: string) : Promise<UserState | null> {
+        console.log(username);
         let userStateMap = await this.loadUserState().catch((e) => { console.error(e); throw "Failed to load UserStateMap" });
         return userStateMap[username] ? userStateMap[username] : null;
     }
