@@ -10,7 +10,6 @@ export default function YoutubeIframe() {
         fetch("./youtubesource.json")
         .then((response) => response.json())
         .then(data => {
-            console.log(data)
             if(data.url !== youtubeUrl)
                 setYoutubeUrl(data.url)
         })
