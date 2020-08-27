@@ -1,4 +1,5 @@
 import React from "react";
+import { useCookies } from "react-cookie";
 
 type NewMessagePayload = {
   username: string;
@@ -51,7 +52,8 @@ type ServerMessage = {
 export default function Chatbox({ serverAddress }: { serverAddress: string }) {
   const [messages, updateMessages] = React.useState([] as ServerMessage[]);
   const [messageInput, setMessageInput] = React.useState("");
-  const [jwtToken, setJWTToken] = React.useState("");
+  const [cookies] = useCookies(["live-site-jwt"]);
+  const [isSignedIn, setIsSignedIn] = React.useState(false);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -63,10 +65,18 @@ export default function Chatbox({ serverAddress }: { serverAddress: string }) {
   React.useEffect(() => {
     socket?.close();
 
+    const token = cookies["live-site-jwt"];
+
     //TODO(davidvu): pass JWT signed token
     socket = window.io(serverAddress, {
-      query: "username=davidvu",
+      query: `token=${token}`,
     }) as SocketIOClient.Socket;
+
+    if (token) {
+      setIsSignedIn(true);
+    } else {
+      setIsSignedIn(false);
+    }
 
     socket.on("message", (payload: NewMessagePayload) => {
       messages.push({
@@ -89,7 +99,7 @@ export default function Chatbox({ serverAddress }: { serverAddress: string }) {
     return () => {
       if (socket) socket.close();
     };
-  }, [jwtToken]);
+  }, [cookies["live-site-jwt"]]);
 
   //auto scroll
   React.useEffect(() => {
@@ -152,8 +162,9 @@ export default function Chatbox({ serverAddress }: { serverAddress: string }) {
               type="text"
               value={messageInput}
               className="form-control input-sm"
-              placeholder="Tin nhắn cho lớp ..."
+              placeholder={isSignedIn ? "Tin nhắn cho lớp ..." : "Bạn phải đăng nhập để tham gia phòng chat"}
               onChange={(e) => setMessageInput(e.target.value)}
+              disabled={!isSignedIn}
             />
 
             <input
