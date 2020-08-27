@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import UserManager, {Role, UserState} from "../chat_server/member_manager";
 
-async function verifyTokenAndGetUserState(token: string): Promise<UserState>{
+export async function verifyTokenAndGetUserState(token: string): Promise<UserState>{
     return new Promise((resolve, reject) => {
         jwt.verify(token, process.env.JWT_SECRET_KEY, (err, user: {name: string}) => {
             if(err) {
