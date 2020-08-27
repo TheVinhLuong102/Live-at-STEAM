@@ -13,6 +13,9 @@ RUN cd /live/frontend && npm install && npm run build && \
 
 WORKDIR /live/backend
 
+RUN rm userstate.json
+RUN cat "{}" >> userstate.json
+
 EXPOSE 3600
 
 CMD ["npm", "start", "-b", "0.0.0.0"]
