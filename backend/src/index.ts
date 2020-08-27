@@ -1,6 +1,7 @@
 import express, { json } from 'express';
 import bodyParser from 'body-parser';
 import ChatServer from './chat_server/server';
+import jwt from 'jsonwebtoken';
 import AuthenticationServer from './auth/authentication_server';
 import cookieParser from 'cookie-parser';
 import UserManager, { Role } from './chat_server/member_manager';
@@ -26,9 +27,9 @@ app.post('/login', (req, res) => {
   if(username == null || password == null) {
     return res.status(400).json({"error": "missing params"});
   }
-  
+
   authenticationServer.login(username, password).then((response) => {
-    UserManager.getState(username).then(async (userState) => {
+    UserManager.getState(response.preferred_username).then(async (userState) => {
       // if not registered
       if(!userState) {
         await UserManager.addUser(username).catch((e) => {
@@ -39,7 +40,7 @@ app.post('/login', (req, res) => {
       
       return res.json({
         status: 1,
-        access_token: response
+        access_token: jwt.sign({user: userState.username}, process.env.JWT_SECRET_KEY)
       } as APIResponse);
     });
   }).catch(error => res.status(400).json({
