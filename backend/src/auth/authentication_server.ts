@@ -23,7 +23,7 @@ export default class AuthenticationServer {
         ).then((response) => {
           const user = jwt.decode(response.data.access_token)?.preferred_username;
           if (!user) {
-            reject("Invalid JWT token received");
+            return reject("Invalid JWT token received");
           }
 
           resolve(jwt.sign({name: username}, process.env.JWT_SECRET_KEY));
