@@ -12,8 +12,7 @@ const useSocketImpl = () => {
 
   React.useEffect(() => {
     socket?.close();
-  
-
+    
     const token = userData.jwtToken;
     if (token) {
       setSocket(

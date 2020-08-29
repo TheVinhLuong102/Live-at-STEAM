@@ -51,7 +51,6 @@ export function UserMessageUI({
               "u-text200 u-textUppercase",
               chooseColorByString(username),
             )}
-            src={require("../assets/images/kid-boy.png")}
             text={getShortName(username)}
           />
         </div>
