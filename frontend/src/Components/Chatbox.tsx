@@ -10,6 +10,7 @@ import {
   Dropdown,
   BubbleChat,
   Separator,
+  Badge,
   //@ts-ignore
 } from "@gotitinc/design-system";
 //@ts-ignore
@@ -51,13 +52,19 @@ function UserMessageUI({
       <div className="u-flexGrow-1 u-text200 u-marginTopTiny u-textWordBreak">
         <span
           className={classNames(
-            "u-fontBold u-marginRightExtraSmall u-textLight"
+            "u-fontBold u-textLight"
           )}
         >
           {username}
         </span>
+        {message_type === "global" && (
+          <Badge variant="positive" className="u-marginLeftTiny">Admin</Badge>
+        )}
         <span
-          className={classNames(message_type === "global" && "u-textWarning")}
+          className={classNames(
+            "u-marginLeftExtraSmall",
+            message_type === "global" && "u-textPositive"
+          )}
         >
           {message}
         </span>
