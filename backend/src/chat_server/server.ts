@@ -1,4 +1,5 @@
 import http from "http";
+import jwt from "jsonwebtoken";
 import { UserManager, Role, UserStatus } from "./member_manager";
 import { verifyTokenAndGetUserState } from "../auth/jwt_auth";
 import { v4 as uuidv4 } from "uuid";
@@ -219,6 +220,24 @@ export default class NonDistributedChatServer {
     );
   }
 
+  async emitBanMessage(username: string): Promise<void> {
+    const socketIds = Object.keys(this.localSocketState).filter(k => this.localSocketState[k].username == username);
+    if (socketIds.length === 0) {
+      return;
+    }
+
+    this.io.to(socketIds[0]).emit("ban_applied");
+  }
+
+  async emitUnbanMessage(username: string): Promise<void> {
+    const socketIds = Object.keys(this.localSocketState).filter(k => this.localSocketState[k].username == username);
+    if (socketIds.length === 0) {
+      return;
+    }
+
+    this.io.to(socketIds[0]).emit("unban_applied");
+  }
+
   public async socketRemoteJoinRoom(
     socketId: string,
     roomName: string
@@ -276,10 +295,8 @@ export default class NonDistributedChatServer {
   setupSocketEvents(socket: SocketIO.Socket) {
     // "thread" safe
     socket.on("message", async (msg: string) => {
-      if (
-        !this.localSocketState[socket.id].isAuthenticated ||
-        this.localSocketState[socket.id].isBanned
-      )
+      if (!this.localSocketState[socket.id].isAuthenticated ||
+        this.localSocketState[socket.id].isBanned)
         return;
 
       let io: SocketIO.Namespace | SocketIO.Server = this.io;
