@@ -13,9 +13,10 @@ export default function NavBar() {
       </Header.Brand>
       <Header.Main>
         <Header.Left className="u-alignItemsCenter">
-          <div className="u-fontMedium u-text500">Bài học số 1:</div>
-          <div className="u-marginHorizontalTiny u-textGray u-text500">Cá nướng của Miu đâu rồi?</div>
-          <div><Badge variant="primary_subtle">{chatAnalytics.numUsers} người đang xem </Badge></div>
+          {/* TODO: get title from API */}
+          <div className="u-fontMedium u-text500">Buổi học số 4:</div>
+          <div className="u-marginLeftTiny u-textGray u-text500">Rắn bắt sao</div>
+          <div className="u-marginLeftExtraSmall"><Badge variant="primary_subtle">{chatAnalytics.numUsers} người đang xem </Badge></div>
         </Header.Left>
         <Header.Right>
           <Login/>

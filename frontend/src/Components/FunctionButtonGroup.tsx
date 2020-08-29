@@ -13,6 +13,7 @@ import { Room } from "../Types/Common";
 import { UserData } from "../Types/User";
 import { useSocket } from "../Hooks/Socket";
 import { useChatAnalytics } from "../Hooks/Analytics";
+import DropdownWrapper from './DropdownWrapper';
 
 export default function FunctionButtonGroup({
   isSignedIn,
@@ -29,7 +30,7 @@ export default function FunctionButtonGroup({
 
   const onSwitchRandomRoom = () => {
     socket?.emit("join_random_room");
-  };
+  }
 
   const onSwitchRoom = (roomName: string) => {
     socket?.emit("join_room", roomName);
@@ -39,7 +40,7 @@ export default function FunctionButtonGroup({
     <React.Fragment>
       {isSignedIn && show && (
         <div className="u-positionAbsolute u-positionFull u-zIndexModal u-flex u-flexGrow-1 u-alignItemsCenter u-justifyContentCenter">
-          <div className="Modal-backDrop u-positionAbsolute u-positionFull u-backgroundBlack u-zIndex2 Show " />
+          <div className="Modal-backDrop u-positionAbsolute u-positionFull u-backgroundBlack u-zIndex2 Show" />
           <div className="u-positionRelative u-zIndex3 u-marginMedium">
             <Modal size="small" relative>
               <Modal.Header closeButton onHide={() => setShow(false)} />
@@ -53,7 +54,10 @@ export default function FunctionButtonGroup({
                 <Button
                   variant="primary"
                   width="full"
-                  onClick={onSwitchRandomRoom}
+                  onClick={() => {
+                    onSwitchRandomRoom();
+                    setShow(false);
+                  }}
                 >
                   Chuyển phòng
                 </Button>
@@ -83,40 +87,47 @@ export default function FunctionButtonGroup({
         )}
 
         {isAdmin && (
-          <Dropdown alignRight>
-            <Overlay.Trigger
-              key="bottom"
-              placement="top"
-              hoverOverlay
-              delay={{ show: 0, hide: 1 }}
-              overlay={(props: Object) => (
-                <Tooltip id="tooltip-choose-room" {...props}>
-                  Chọn phòng chat
-                </Tooltip>
-              )}
-            >
-              <Dropdown.Button
-                onlyIcon
-                variant="primary"
-                className="u-roundedCircle u-marginRightExtraSmall"
+          <DropdownWrapper
+            renderer={(showDropdown: boolean, setShowDropdown: Function) => (
+              <Dropdown
+                alignRight
+                onToggle={() => {
+                  setShowDropdown(!showDropdown);
+                }}
+                show={showDropdown}
               >
-                <Button.Icon>
-                  <Icon name="people" />
-                </Button.Icon>
-              </Dropdown.Button>
-            </Overlay.Trigger>
-            <Dropdown.Container className="u-paddingVerticalExtraSmall">
-              {chatAnalytics.rooms.map((r, i) => (
-                <Dropdown.Item
-                  key={r.count}
-                  onClick={() => onSwitchRoom(r.name)}
-                  className="u-cursorPointer"
+                <Overlay.Trigger
+                  key="bottom"
+                  placement="top"
+                  hoverOverlay
+                  delay={{ show: 0, hide: 1 }}
+                  overlay={(props: Object) => (
+                    <Tooltip id="tooltip-choose-room" {...props}>
+                      Chọn phòng chat
+                    </Tooltip>
+                  )}
                 >
-                  <span className="u-marginLeftExtraSmall">{r.name}</span>
-                </Dropdown.Item>
-              ))}
-            </Dropdown.Container>
-          </Dropdown>
+                  <Dropdown.Button onlyIcon variant="primary" className="u-roundedCircle u-marginRightExtraSmall">
+                    <Button.Icon><Icon name="people"/></Button.Icon>
+                  </Dropdown.Button>
+                </Overlay.Trigger>
+                <Dropdown.Container className="u-paddingVerticalExtraSmall">
+                  {chatAnalytics.rooms.map((r, i) => (
+                    <Dropdown.Item
+                      key={r.count}
+                      onClick={() => {
+                        onSwitchRoom(r.name);
+                        setShowDropdown(false);
+                      }}
+                      className="u-cursorPointer"
+                    >
+                      <span className="u-marginLeftExtraSmall">{r.name}</span>
+                    </Dropdown.Item>
+                  ))}
+                </Dropdown.Container>
+              </Dropdown>
+            )}
+          />
         )}
 
         <Overlay.Trigger

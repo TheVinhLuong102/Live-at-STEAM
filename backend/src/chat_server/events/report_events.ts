@@ -29,7 +29,7 @@ export function registerReportEvents(socket: SocketIO.Socket) {
       if (reportCount > 0) {
         return this.io.to(socket.id).emit("report_user_resp", {
           status: -1,
-          response: `Bạn không thể báo cáo vi phạm ${username} quá 1 lần`,
+          response: `Bạn không thể báo cáo vi phạm ${username} quá 1 lần.`,
         });
       }
       await this.storage.saveKey(
@@ -52,7 +52,7 @@ export function registerReportEvents(socket: SocketIO.Socket) {
       console.error(e);
       this.io.to(socket.id).emit("report_user_resp", {
         status: -1,
-        response: `Báo cáo vi phạm dành cho ${username} không thành công`,
+        response: `Báo cáo vi phạm dành cho ${username} không thành công.`,
       });
     }
   });

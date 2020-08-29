@@ -5,9 +5,6 @@ import {
   Composer,
   Avatar,
   Form,
-  Button,
-  Icon,
-  Dropdown,
   BubbleChat,
   Separator,
   Badge,
@@ -43,7 +40,7 @@ function ChatMessage({
     case "new_member_joined":
       return (
         <SystemMessageUI
-          message={`${payload.username} just joined the room "${payload.room}"`}
+          message={`${payload.username} vừa tham gia phòng "${payload.room}".`}
           type="info"
         />
       );
@@ -145,7 +142,7 @@ export default function Chatbox() {
         ) {
           messages[i] = {
             payload: {
-              response: "Message was deleted by Admin",
+              response: "Tin nhắn đã bị xoá bởi admin.",
             },
             action: "api_message_highlight",
           };
@@ -171,7 +168,7 @@ export default function Chatbox() {
     socket.on("unban_applied", (username: string) => {
       messages.push({
         payload: {
-          response: `${username} đã lấy lại được quyền chat!`,
+          response: `${username} đã có thể tiếp tục chat!`,
         },
         action: "api_message",
       });
@@ -227,11 +224,11 @@ export default function Chatbox() {
     <React.Fragment>
       {!userData.isLoggedIn && (
         <div className="u-positionAbsolute u-positionFull u-zIndexModal u-flex u-alignItemsEnd">
-          <div className="Modal-backDrop u-positionAbsolute u-positionFull u-backgroundBlack u-zIndex2 Show " />
+          <div className="Modal-backDrop u-positionAbsolute u-positionFull u-backgroundBlack u-zIndex2 Show" />
           <div className="u-positionRelative u-zIndex3 u-marginSmall u-marginBottomExtraLarge">
             <BubbleChat
               className="u-marginNone"
-              text="Xin chào, đăng nhập vào tài khoàn STEAM for Vietnam LMS của bạn để bất đầu chat với các thành viên khác trong phòng chat này!"
+              text="Xin chào, đăng nhập vào tài khoản STEAM for Vietnam LMS của bạn để bất đầu chat với các thành viên khác trong phòng chat này!"
               type="outbound"
               avatar={() => (
                 <Avatar
@@ -309,6 +306,8 @@ export default function Chatbox() {
                     handleSubmit(undefined);
                   }
                 },
+                // TODO: limit
+                maxLength: 2000,
               }}
               sendButtonProps={{
                 onClick: handleSubmit,

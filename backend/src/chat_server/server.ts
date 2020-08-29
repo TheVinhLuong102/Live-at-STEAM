@@ -289,7 +289,7 @@ export default class NonDistributedChatServer {
                 status: 1,
                 username: this.localSocketState[socket.id].username,
                 room: rooms[0].name,
-                response: `Gia nhập phòng ${rooms[0].name} thành công`,
+                response: `Gia nhập phòng "${rooms[0].name}" thành công!`,
               } as JoinRoomResponse);
               
               this.setupSocketEvents(socket);
