@@ -2,14 +2,13 @@ import { UserManager } from "../member_manager";
 import Config from "../../settings";
 import { shuffleArray } from "../utils";
 
-type JoinRoomResponse = {
+export type JoinRoomResponse = {
   status: number;
   response: string;
-  username: string;
   room: string;
 };
 
-type NewMemberJoined = {
+export type NewMemberJoined = {
   username: string;
   room: string;
 };

@@ -39,6 +39,10 @@ export function UserMessageUI({
     socket?.emit("report", username);
   };
 
+  const handleBanUser = (username: string) => {
+    socket?.emit("ban_user", username);
+  };
+
   return (
     <div
       className="u-flex u-marginBottomExtraSmall u-paddingRightMedium u-positionRelative"
@@ -111,7 +115,7 @@ export function UserMessageUI({
                       Báo cáo vi phạm
                     </span>
                   </Dropdown.Item>
-                  {userData?.role === 0 && (
+                  {userData?.role === 0 && [
                     <Dropdown.Item
                       className="u-cursorPointer u-alignItemsCenter"
                       role="button"
@@ -124,8 +128,21 @@ export function UserMessageUI({
                       <span className="u-marginLeftExtraSmall u-text200 u-textNoWrap">
                         Xoá tin nhắn
                       </span>
-                    </Dropdown.Item>
-                  )}
+                    </Dropdown.Item>,
+                    <Dropdown.Item
+                      className="u-cursorPointer u-alignItemsCenter"
+                      role="button"
+                      onClick={() => {
+                        handleBanUser(username);
+                        setShowDropdown(false);
+                      }}
+                    >
+                      <Icon name="micOff" size="extraSmall" />
+                      <span className="u-marginLeftExtraSmall u-text200 u-textNoWrap">
+                        Cấm chat
+                      </span>
+                    </Dropdown.Item>,
+                  ]}
                 </Dropdown.Container>
               </Dropdown>
             )}

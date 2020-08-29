@@ -125,7 +125,7 @@ app.get("/admin/unban", [jwt_express_auth, check_admin], (req, res) => {
         status: 1,
         response: `Successfully unbanned ${target_user}`,
       } as APIResponse);
-      myChatServer.emitBanMessage(target_user).catch((e) => console.error(e));
+      myChatServer.emitUnbanMessage(target_user).catch((e) => console.error(e));
     })
     .catch((e) =>
       res.status(500).json({

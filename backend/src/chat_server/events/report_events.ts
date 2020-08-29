@@ -1,7 +1,48 @@
 import UserManager, { UserStatus, UserState, Role } from "../member_manager";
 import { report } from "process";
+import { isAdmin } from "../utils";
 
 export function registerReportEvents(socket: SocketIO.Socket) {
+  socket.on("ban_user", async (username: string) => {
+    try {
+      if (!(await isAdmin(this.localSocketState[socket.id].username))) {
+        throw "This user isn't Admin";
+      }
+
+      let userState = await UserManager.banUser(username);
+      this.emitBanMessage(username).catch((e) => console.error(e));
+      return this.io.to(socket.id).emit("report_user_resp", {
+        status: -1,
+        response: `Cấm chat ${username} thành công!`,
+      });
+    } catch (e) {
+      console.error(e);
+      this.io.to(socket.id).emit("report_user_resp", {
+        status: -1,
+        response: `Lỗi xảy ra khi cấm chat ${username}`,
+      });
+    }
+  });
+  socket.on("unban_user", async (username: string) => {
+    try {
+      if (!(await isAdmin(this.localSocketState[socket.id].username))) {
+        throw "This user isn't Admin";
+      }
+
+      let userState = await UserManager.unbanUser(username);
+      this.emitUnbanMessage(username).catch((e) => console.error(e));
+      return this.io.to(socket.id).emit("report_user_resp", {
+        status: -1,
+        response: `Gỡ cấm chat cho ${username} thành công!`,
+      });
+    } catch (e) {
+      console.error(e);
+      this.io.to(socket.id).emit("report_user_resp", {
+        status: -1,
+        response: `Lỗi xảy ra khi cấm chat ${username}`,
+      });
+    }
+  });
   socket.on("report", async (username: string) => {
     if (!this.localSocketState[socket.id].isAuthenticated) return;
 

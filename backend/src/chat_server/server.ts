@@ -5,7 +5,7 @@ import { verifyTokenAndGetUserState } from "../auth/jwt_auth";
 import { KeyValueStorage } from "../storage/key_value";
 import Config from "../settings";
 import { report } from "process";
-import { registerRoomEvents } from "./events/room_events";
+import { registerRoomEvents, JoinRoomResponse, NewMemberJoined } from "./events/room_events";
 import { registerMessageEvents } from "./events/message_events";
 import { registerReportEvents } from "./events/report_events";
 
@@ -17,22 +17,6 @@ type SessionStore = {
 };
 
 type SocketClientID = string;
-type Room = {
-  name: string;
-  count: number;
-};
-
-type JoinRoomResponse = {
-  status: number;
-  response: string;
-  username: string;
-  room: string;
-};
-
-type NewMemberJoined = {
-  username: string;
-  room: string;
-};
 
 const ROOM_PREFIX = "Room";
 
@@ -58,7 +42,7 @@ export default class NonDistributedChatServer {
   }
 
   async getRooms(): Promise<Room[]> {
-    // thread safe
+    // not thread safe
     let rooms = await this.getRoomNames();
     let materializedRooms = await Promise.all(
       rooms.map(
@@ -75,27 +59,13 @@ export default class NonDistributedChatServer {
           })
       )
     );
-
-    // Add not yet materialized rooms to the list
-    [...Array(await this.getMaxNumRooms()).keys()]
-      .map((i) => `${ROOM_PREFIX} ${i}`)
-      .filter((r) => !rooms.includes(r))
-      .forEach((roomName) =>
-        materializedRooms.push({
-          name: roomName,
-          count: 0,
-        })
-      );
-
     return materializedRooms;
   }
 
   async getRoomNames(): Promise<string[]> {
-    // not "thread" safe
-    // Note: if we use socket.io-redis for multiple instances (loadbalancing)
-    // we would have to get the rooms from adapter.getAllRooms()
-    return Object.keys(this.io.sockets.adapter.rooms).filter((roomName) =>
-      roomName.includes(ROOM_PREFIX)
+    // "thread" safe
+    return [...Array(await this.getMaxNumRooms()).keys()].map(
+      (i) => `${ROOM_PREFIX} ${i}`
     );
   }
 
@@ -151,7 +121,16 @@ export default class NonDistributedChatServer {
         (clientID, i) =>
           new Promise((resolve, reject) =>
             this.socketRemoteJoinRoom(clientID, roomNames[i % roomNames.length])
-              .then(() => resolve())
+              .then(() => {
+                this.io.to(clientID).emit("join_room_resp", {
+                  status: 1,
+                  room: roomNames[i % roomNames.length],
+                  response: `Gia nhập phòng "${
+                    roomNames[i % roomNames.length]
+                  }" thành công!`,
+                } as JoinRoomResponse);
+                resolve();
+              })
               .catch((e) => {
                 console.error(e);
                 reject(
@@ -287,11 +266,10 @@ export default class NonDistributedChatServer {
 
               this.io.to(socket.id).emit("join_room_resp", {
                 status: 1,
-                username: this.localSocketState[socket.id].username,
                 room: rooms[0].name,
                 response: `Gia nhập phòng "${rooms[0].name}" thành công!`,
               } as JoinRoomResponse);
-              
+
               this.setupSocketEvents(socket);
             })
             .catch((e) => {
