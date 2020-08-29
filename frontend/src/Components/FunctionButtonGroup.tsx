@@ -21,7 +21,7 @@ export default function FunctionButtonGroup({
   const [show, setShow] = React.useState(false);
 
   const onSwitchRoomConfirm = () => {
-    // Start timer after successful room change
+    // TODO: Start timer after successful room change
     console.log('confirmed');
   }
 

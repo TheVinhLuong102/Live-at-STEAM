@@ -65,7 +65,7 @@ export default function Chatbox() {
   const socket = useSocket();
   const userData = useUserData();
 
-  const isAdmin = userData?.isLoggedIn && userData?.role == 0;
+  const isAdmin = userData?.isLoggedIn && userData?.role === 0;
 
   const loadRooms = () => {
     fetch(`/api/getRooms`, {
