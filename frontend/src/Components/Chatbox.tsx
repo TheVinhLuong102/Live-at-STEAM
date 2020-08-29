@@ -72,7 +72,7 @@ type Message = {
   action: string;
 };
 
-export default function Chatbox({ serverAddress }: { serverAddress: string }) {
+export default function Chatbox() {
   const [messages, updateMessages] = React.useState([] as Message[]);
   const [messageInput, setMessageInput] = React.useState("");
   const [rooms, setRooms] = React.useState([] as Room[]);
