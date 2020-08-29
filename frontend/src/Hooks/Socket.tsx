@@ -19,6 +19,10 @@ const useSocketImpl = () => {
           query: `token=${token}`,
         }) as SocketIOClient.Socket
       );
+    } else {
+      setSocket(
+        window.io("/") as SocketIOClient.Socket
+      );
     }
 
     return () => {
