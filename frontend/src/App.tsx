@@ -26,7 +26,7 @@ function App() {
               <YoutubeIframe />
             </div>
             <div className="u-size3of12 u-flex u-positionRelative">
-              <Chatbox serverAddress="/" />
+              <Chatbox />
             </div>
           </div>
         </div>

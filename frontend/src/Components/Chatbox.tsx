@@ -14,9 +14,7 @@ import {
   //@ts-ignore
 } from "@gotitinc/design-system";
 //@ts-ignore
-import classNames from "classnames";
-import jwtDecode from "jwt-decode";
-import { UserData } from "../Types/User";
+
 import {
   NewMessagePayload,
   DeleteMessagePayload,
@@ -24,123 +22,12 @@ import {
   Room,
   Message,
 } from "../Types/Common";
+
+import {UserMessageUI, SystemMessageUI} from "./MessageUI";
 import FunctionButtonGroup from "./FunctionButtonGroup";
 import { useUserData } from "../Hooks/User";
 import { useSocket } from "../Hooks/Socket";
 
-
-
-function UserMessageUI({
-  username,
-  message,
-  messageId,
-  message_type,
-}: {
-  username: string,
-  message: string,
-  messageId: string
-  message_type: string,
-}) {
-  const [hover, setHover] = React.useState(false);
-  const userData = useUserData();
-  const socket = useSocket();
-
-  const handleDeleteMessage = (e: any) => {
-    if(!socket)
-      return;
-
-    socket.emit("delete_message", messageId);
-  }
-
-
-
-  return (
-    <div
-      className="u-flex u-marginBottomExtraSmall u-paddingRightMedium u-positionRelative"
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-    >
-      <div className="u-flexShrink-0 u-marginRightExtraSmall">
-        <Avatar src={require("../assets/images/kid-boy.png")} />
-      </div>
-      <div className="u-flexGrow-1 u-text200 u-marginTopTiny u-textWordBreak">
-        <span
-          className={classNames(
-            "u-fontBold u-textLight"
-          )}
-        >
-          {username}
-        </span>
-        {message_type === "global" && (
-          <Badge variant="positive" className="u-marginLeftTiny">Admin</Badge>
-        )}
-        <span
-          className={classNames(
-            "u-marginLeftExtraSmall",
-            message_type === "global" && "u-textPositive"
-          )}
-        >
-          {message}
-        </span>
-      </div>
-      {hover && (
-        <div className="u-positionAbsolute u-positionRight u-positionTop">
-          <Dropdown alignRight>
-            <Dropdown.Toggle className="u-textLight hover:u-textGray u-lineHeightNone u-rotate90">
-              <Icon size="extraSmall" name="more" />
-            </Dropdown.Toggle>
-            <Dropdown.Container
-              className="u-paddingVerticalExtraSmall"
-              additionalStyles={{ minWidth: 150 }}
-            >
-              <Dropdown.Item
-                className="u-cursorPointer u-alignItemsCenter"
-                role="button"
-                onClick={() => {}}
-              >
-                <Icon name="flag" size="extraSmall" />
-                <span className="u-marginLeftExtraSmall u-text200 u-textNoWrap">
-                  Báo cáo vi phạm
-                </span>
-              </Dropdown.Item>
-              {userData?.role == 0 && (
-                <Dropdown.Item
-                  className="u-cursorPointer u-alignItemsCenter"
-                  role="button"
-                >
-                  <Icon name="closeCircleOutline" size="extraSmall" />
-                  <span onClick={handleDeleteMessage} className="u-marginLeftExtraSmall u-text200 u-textNoWrap">
-                    Xoá tin nhắn
-                  </span>
-                </Dropdown.Item>
-              )}
-            </Dropdown.Container>
-          </Dropdown>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function SystemMessageUI({
-  message,
-  type,
-}: {
-  message: string | null | undefined;
-  type: string | null | undefined;
-}) {
-  return (
-    <div
-      className={classNames(
-        "u-text200 u-fontItalic u-marginBottomExtraSmall",
-        type === "info" && "u-textLight",
-        type === "error" && "u-textNegative"
-      )}
-    >
-      {message}
-    </div>
-  );
-}
 
 function ChatMessage({ message_type, payload, action }: Message) {
   switch (action) {
@@ -169,7 +56,7 @@ function ChatMessage({ message_type, payload, action }: Message) {
 
 
 
-export default function Chatbox({ serverAddress }: { serverAddress: string }) {
+export default function Chatbox() {
   const [messages, updateMessages] = React.useState([] as Message[]);
   const [messageInput, setMessageInput] = React.useState("");
   const [rooms, setRooms] = React.useState([] as Room[]);
