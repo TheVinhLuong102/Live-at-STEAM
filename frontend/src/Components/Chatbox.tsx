@@ -139,6 +139,18 @@ export default function Chatbox() {
       updateMessages([...messages]);
     });
 
+    socket.on("report_applied", (username: string) => {
+      messages.push({
+        payload: {
+          response: `${username} vừa bị báo cáo vi phạm, nếu còn tiếp tục bạn sẽ bị cấm chat!`,
+        },
+        action: "api_message",
+      });
+
+      if (username === userData.username) setIsBanned(true);
+      updateMessages([...messages]);
+    });
+
     socket.on("ban_applied", (username: string) => {
       messages.push({
         payload: {

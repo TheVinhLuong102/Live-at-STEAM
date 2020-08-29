@@ -159,10 +159,20 @@ export default class NonDistributedChatServer {
     this.io.emit("ban_applied", username);
   }
 
+  async emitReportMessage(username: string, room: string | undefined): Promise<void> {
+    // same reason with emitBanMessage
+    let io : SocketIO.Server | SocketIO.Namespace = this.io;
+    if(room)
+      io = io.to(room);
+
+    io.emit("report_applied", username);
+  }
+
   async emitUnbanMessage(username: string): Promise<void> {
     // Same reason with emitBanMessage()
     this.io.emit("unban_applied", username);
   }
+  
 
   public async socketRemoteJoinRoom(
     socketId: string,

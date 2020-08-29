@@ -84,6 +84,7 @@ export function registerReportEvents(socket: SocketIO.Socket) {
           this.emitBanMessage(username);
         }
       });
+      this.emitReportMessage(username, socket.rooms[-1]).catch((e) => console.error(e));
       // emit successful response to client
       this.io.to(socket.id).emit("report_user_resp", {
         status: 1,
