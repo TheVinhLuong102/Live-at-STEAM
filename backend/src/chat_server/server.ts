@@ -72,7 +72,7 @@ export default class NonDistributedChatServer {
   async getRoomNames(): Promise<string[]> {
     // "thread" safe
     return [...Array(await this.getMaxNumRooms()).keys()].map(
-      (i) => `${ROOM_PREFIX} ${i}`
+      (i) => `${ROOM_PREFIX} ${i+1}` 
     );
   }
 
