@@ -25,7 +25,7 @@ export default function FunctionButtonGroup({
   const [show, setShow] = React.useState(false);
   const socket = useSocket();
   const onSwitchRoomConfirm = () => {
-    // TODO: Start timer after successful room change
+
     console.log('confirmed');
     socket?.emit("join_random_room");
   }
