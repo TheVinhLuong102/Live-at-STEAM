@@ -4,6 +4,7 @@ import { useCookies } from "react-cookie";
 import { ChatBox, Composer, Avatar, Button, Icon, Dropdown, Overlay, Tooltip, Modal, BubbleChat } from '@gotitinc/design-system';
 //@ts-ignore
 import classNames from 'classnames';
+import FunctionButtonGroup from "./FunctionButtonGroup";
 
 type NewMessagePayload = {
   username: string;
@@ -376,6 +377,7 @@ export default function Chatbox({ serverAddress }: { serverAddress: string }) {
               </Button>
             </Overlay.Trigger>
           </div>
+          {/* <FunctionButtonGroup /> */}
         </div>
         <ChatBox className="u-border u-backgroundWhite">
           <ChatBox.List>
