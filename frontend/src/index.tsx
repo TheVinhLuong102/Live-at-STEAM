@@ -1,7 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
+import '@gotitinc/design-system/dist/index-steam4vn.min.css';
 import App from './App';
+import './assets/css/custom.css';
 import * as serviceWorker from './serviceWorker';
 import { CookiesProvider } from 'react-cookie';
 

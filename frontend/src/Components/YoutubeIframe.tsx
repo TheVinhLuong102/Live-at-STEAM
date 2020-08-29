@@ -26,7 +26,8 @@ export default function YoutubeIframe() {
     }, [])
 
     return (
-        <iframe width="100%" style={{"height":"70vh"}}
+        <iframe width="100%"
+                height="100%" 
                 src={youtubeUrl} 
                 frameBorder="0" 
                 allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" 
