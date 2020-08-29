@@ -37,7 +37,6 @@ let ADMIN_LIST = [
   "s4vadmin",
   "tuananh-pham",
   "hungdoan",
-  "lemailan12",
   "Rosie",
   "Joy_Vu",
 ];
