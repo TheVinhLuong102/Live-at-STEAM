@@ -321,7 +321,7 @@ export default class NonDistributedChatServer {
         let io: SocketIO.Server = this.io;
         //broadcast to all client to delete this new message
         io.emit("delete_message", {
-          message_id: uuidv4(), // generate a random ID for this message
+          message_id: message_id, // generate a random ID for this message
         } as DeleteMessagePayload);
       });
 

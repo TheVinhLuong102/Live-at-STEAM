@@ -1,7 +1,9 @@
 
 
 export type UserData = {
-    username: string,
-    role: number
+    isLoggedIn: boolean,
+    jwtToken?: string,
+    username?: string,
+    role?: number
 }
   
