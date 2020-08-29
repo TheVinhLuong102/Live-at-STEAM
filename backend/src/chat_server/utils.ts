@@ -15,6 +15,14 @@ export async function isAdmin(username: string) {
   return userState.role == Role.ADMIN;
 }
 
+export async function getRole(username: string) {
+  let userState: UserState | null = await UserManager.getState(username);
+
+  if (!userState) throw "User not found";
+
+  return userState.role;
+}
+
 export async function isBanned(username: string) {
   let userState: UserState | null = await UserManager.getState(username);
 

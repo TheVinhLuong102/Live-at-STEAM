@@ -1,5 +1,6 @@
 export type NewMessagePayload = {
   username: string;
+  role: number;
   message_id: string;
   msg: string;
   type: string;

@@ -49,11 +49,8 @@ function ChatMessage({
     case "message":
       return (
         <UserMessageUI
-          username={payload.username}
-          message={payload.msg}
-          messageId={payload.message_id}
-          message_type={message_type as string}
           socket={socket}
+          {...payload}
         />
       );
     case "api_message_highlight":
