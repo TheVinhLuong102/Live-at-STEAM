@@ -14,20 +14,18 @@ import { useUserData } from "../Hooks/User";
 import { useSocket } from "../Hooks/Socket";
 import DropdownWrapper from "./DropdownWrapper";
 import { getShortName, chooseColorByString } from "../Utils/Common";
+import {NewMessagePayload} from "../Types/Common";
 
 export function UserMessageUI({
   username,
+  role,
   message,
   messageId,
-  message_type,
+  type,
   socket,
 }: {
-  username: string;
-  message: string;
-  messageId: string;
-  message_type: string;
   socket: SocketIOClient.Socket | null | undefined;
-}) {
+} & NewMessagePayload) {
   const [hover, setHover] = React.useState(false);
   const userData = useUserData();
 
@@ -60,8 +58,8 @@ export function UserMessageUI({
         />
       </div>
       <div className="u-flexGrow-1 u-text200 u-marginTopTiny u-textWordBreak">
-        <span className={classNames("u-fontBold u-textLight")}>{username}</span>
-        {message_type === "global" && (
+        <span className={classNames("u-fontBold u-textLight " + ( role === 0 && "u-textPositive"))}>{username}</span>
+        {type === "global" && (
           <Badge
             variant="positive"
             className="u-marginLeftTiny u-fontRegular u-text100"
@@ -72,7 +70,7 @@ export function UserMessageUI({
         <span
           className={classNames(
             "u-marginLeftExtraSmall",
-            message_type === "global" && "u-textPositive"
+            type === "global" && "u-textPositive"
           )}
         >
           <Linkify

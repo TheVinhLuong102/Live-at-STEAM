@@ -1,12 +1,13 @@
 export type NewMessagePayload = {
   username: string;
-  message_id: string;
-  msg: string;
+  role: number;
+  messageId: string;
+  message: string;
   type: string;
 };
 
 export type DeleteMessagePayload = {
-  message_id: string;
+  messageId: string;
 };
 
 export type NewMemberJoined = {

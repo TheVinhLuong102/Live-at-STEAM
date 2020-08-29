@@ -49,11 +49,8 @@ function ChatMessage({
     case "message":
       return (
         <UserMessageUI
-          username={payload.username}
-          message={payload.msg}
-          messageId={payload.message_id}
-          message_type={message_type as string}
           socket={socket}
+          {...payload}
         />
       );
     case "api_message_highlight":
@@ -123,8 +120,8 @@ export default function Chatbox() {
       for (let i = 0; i < messages.length; ++i) {
         if (
           messages[i].action === "message" &&
-          (messages[i].payload as NewMessagePayload).message_id ===
-            payload.message_id
+          (messages[i].payload as NewMessagePayload).messageId ===
+            payload.messageId
         ) {
           messages[i] = {
             payload: {
@@ -135,7 +132,7 @@ export default function Chatbox() {
           break;
         }
       }
-
+      
       updateMessages([...messages]);
     });
 
