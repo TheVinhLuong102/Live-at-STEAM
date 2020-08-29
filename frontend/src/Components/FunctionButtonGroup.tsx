@@ -1,9 +1,15 @@
 import React from "react";
 //@ts-ignore
-import { Button, Icon, Dropdown, Overlay, Tooltip, Modal } from '@gotitinc/design-system';
 import {
-  Room,
-} from "../Types/Common";
+  Button,
+  Icon,
+  Dropdown,
+  Overlay,
+  Tooltip,
+  Modal,
+//@ts-ignore
+} from "@gotitinc/design-system";
+import { Room } from "../Types/Common";
 import { UserData } from "../Types/User";
 import { useSocket } from "../Hooks/Socket";
 import { useChatAnalytics } from "../Hooks/Analytics";
@@ -12,10 +18,10 @@ export default function FunctionButtonGroup({
   isSignedIn,
   isAdmin,
   userData,
-} : {
-  isSignedIn: boolean,
-  isAdmin: boolean,
-  userData: UserData
+}: {
+  isSignedIn: boolean;
+  isAdmin: boolean;
+  userData: UserData;
 }) {
   const [show, setShow] = React.useState(false);
   const socket = useSocket();
@@ -23,27 +29,34 @@ export default function FunctionButtonGroup({
 
   const onSwitchRandomRoom = () => {
     socket?.emit("join_random_room");
-  }
+  };
 
   const onSwitchRoom = (roomName: string) => {
     socket?.emit("join_room", roomName);
-  }
+  };
 
   return (
     <React.Fragment>
       {isSignedIn && show && (
         <div className="u-positionAbsolute u-positionFull u-zIndexModal u-flex u-flexGrow-1 u-alignItemsCenter u-justifyContentCenter">
-          <div className="Modal-backDrop u-positionAbsolute u-positionFull u-backgroundBlack u-zIndex2 Show "/>
+          <div className="Modal-backDrop u-positionAbsolute u-positionFull u-backgroundBlack u-zIndex2 Show " />
           <div className="u-positionRelative u-zIndex3 u-marginMedium">
             <Modal size="small" relative>
-              <Modal.Header closeButton onHide={() => setShow(false)}/>
+              <Modal.Header closeButton onHide={() => setShow(false)} />
               <Modal.Body>
                 <div className="u-textCenter">
-                  Chỉ được chuyển phòng tối đa 1 lần trong 5 phút. Bạn chắc chắn muốn chuyển phòng chứ?
+                  Chỉ được chuyển phòng tối đa 1 lần trong 5 phút. Bạn chắc chắn
+                  muốn chuyển phòng chứ?
                 </div>
               </Modal.Body>
               <Modal.Footer>
-                <Button variant="primary" width="full" onClick={onSwitchRandomRoom}>Chuyển phòng</Button>
+                <Button
+                  variant="primary"
+                  width="full"
+                  onClick={onSwitchRandomRoom}
+                >
+                  Chuyển phòng
+                </Button>
               </Modal.Footer>
             </Modal>
           </div>
@@ -52,13 +65,17 @@ export default function FunctionButtonGroup({
       <div className="u-flexShrink-0 u-flex u-alignItemsCenter u-justifyContentCenter">
         {!isAdmin && (
           <Dropdown alignRight>
-            <Dropdown.Button onlyIcon variant="positive_outline" className="u-roundedCircle u-marginRightExtraSmall is-disabled">
-              <Button.Icon><Icon name="raiseHand"/></Button.Icon>
+            <Dropdown.Button
+              onlyIcon
+              variant="positive_outline"
+              className="u-roundedCircle u-marginRightExtraSmall is-disabled"
+            >
+              <Button.Icon>
+                <Icon name="raiseHand" />
+              </Button.Icon>
             </Dropdown.Button>
             <Dropdown.Container className="u-overflowHidden u-borderNone">
-              <div
-                className="u-paddingExtraSmall u-backgroundBlack u-textWhite"
-              >
+              <div className="u-paddingExtraSmall u-backgroundBlack u-textWhite">
                 Chức năng giơ tay sẽ được cập nhật trong các phiên bản sau!
               </div>
             </Dropdown.Container>
@@ -78,13 +95,23 @@ export default function FunctionButtonGroup({
                 </Tooltip>
               )}
             >
-              <Dropdown.Button onlyIcon variant="primary" className="u-roundedCircle u-marginRightExtraSmall">
-                <Button.Icon><Icon name="people"/></Button.Icon>
+              <Dropdown.Button
+                onlyIcon
+                variant="primary"
+                className="u-roundedCircle u-marginRightExtraSmall"
+              >
+                <Button.Icon>
+                  <Icon name="people" />
+                </Button.Icon>
               </Dropdown.Button>
             </Overlay.Trigger>
             <Dropdown.Container className="u-paddingVerticalExtraSmall">
               {chatAnalytics.rooms.map((r, i) => (
-                <Dropdown.Item key={r.count} onClick={() => onSwitchRoom(r.name)} className="u-cursorPointer">
+                <Dropdown.Item
+                  key={r.count}
+                  onClick={() => onSwitchRoom(r.name)}
+                  className="u-cursorPointer"
+                >
                   <span className="u-marginLeftExtraSmall">{r.name}</span>
                 </Dropdown.Item>
               ))}
@@ -103,8 +130,15 @@ export default function FunctionButtonGroup({
             </Tooltip>
           )}
         >
-          <Button onlyIcon variant="accent" className="u-roundedCircle" onClick={() => setShow(true)}>
-            <Button.Icon><Icon name="arrowForward"/></Button.Icon>
+          <Button
+            onlyIcon
+            variant="accent"
+            className="u-roundedCircle"
+            onClick={() => setShow(true)}
+          >
+            <Button.Icon>
+              <Icon name="arrowForward" />
+            </Button.Icon>
           </Button>
         </Overlay.Trigger>
       </div>

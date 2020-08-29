@@ -50,10 +50,7 @@ export default class NonDistributedChatServer {
   userStateUpdateInterval: number;
   storage: KeyValueStorage;
 
-  constructor(
-    http_server: http.Server,
-    storage: KeyValueStorage
-  ) {
+  constructor(http_server: http.Server, storage: KeyValueStorage) {
     this.io = require("socket.io")(http_server);
     this.maxNumRooms = 1;
     this.localSocketState = {};
@@ -171,14 +168,14 @@ export default class NonDistributedChatServer {
   async emitBanMessage(username: string): Promise<void> {
     // If we were to run this chat server in multiple instances
     // it's not so easy to find where the targeted user's socket is managed
-    // ---> The easier approach is to broadcast the message to all the clients 
+    // ---> The easier approach is to broadcast the message to all the clients
     // and let the the client decides whether they were banned or not
-    this.io.emit("ban_applied" , username);
+    this.io.emit("ban_applied", username);
   }
 
   async emitUnbanMessage(username: string): Promise<void> {
     // Same reason with emitBanMessage()
-    this.io.emit("unban_applied" , username);
+    this.io.emit("unban_applied", username);
   }
 
   public async socketRemoteJoinRoom(
@@ -287,6 +284,14 @@ export default class NonDistributedChatServer {
                 username: this.localSocketState[socket.id].username,
                 room: rooms[0].name,
               } as NewMemberJoined);
+
+              this.io.to(socket.id).emit("join_room_resp", {
+                status: 1,
+                username: this.localSocketState[socket.id].username,
+                room: rooms[0].name,
+                response: `Gia nhập phòng ${rooms[0].name} thành công`,
+              } as JoinRoomResponse);
+              
               this.setupSocketEvents(socket);
             })
             .catch((e) => {

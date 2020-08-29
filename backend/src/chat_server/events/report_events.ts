@@ -14,10 +14,10 @@ export function registerReportEvents(socket: SocketIO.Socket) {
 
       if (!reportedUser || !userState) throw "User not found!";
 
-      if(reportedUser.role === Role.ADMIN) {
+      if (reportedUser.role === Role.ADMIN) {
         return this.io.to(socket.id).emit("report_user_resp", {
-            status: -1,
-            response: `Bạn không thể báo cáo vi phạm Admin!`,
+          status: -1,
+          response: `Bạn không thể báo cáo vi phạm Admin!`,
         });
       }
 
@@ -37,7 +37,7 @@ export function registerReportEvents(socket: SocketIO.Socket) {
         1, // report count
         3600 // ttl
       );
-    
+
       UserManager.reportUser(username).then((newState) => {
         if (newState.status === UserStatus.BANNED) {
           this.emitBanMessage(username);
