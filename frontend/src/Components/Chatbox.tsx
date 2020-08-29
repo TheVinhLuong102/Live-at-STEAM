@@ -129,7 +129,7 @@ function ChatMessage({ message_type, payload, action }: Message) {
       return (
         <UserMessageUI
           username={payload.username}
-          message={payload.message}
+          message={payload.msg}
           message_type={message_type}
         />
       );
@@ -254,7 +254,6 @@ export default function Chatbox({
       setTimeout(() => setMessageInput(""), 1);
     }
 
-    console.log('sending', messageToSend, 'of type', event_type);
     socket?.emit(event_type, messageToSend);
     setTimeout(() => setMessageInput(""), 1);
     setSendAll(false);
@@ -262,7 +261,7 @@ export default function Chatbox({
 
   React.useEffect(() => {
     socket?.close();
-    
+
     const token = cookies["live-site-jwt"];
 
     socket = window.io(serverAddress, {
@@ -270,6 +269,7 @@ export default function Chatbox({
     }) as SocketIOClient.Socket;
 
     socket.on("message", (payload: NewMessagePayload) => {
+      console.log(payload);
       messages.push({
         payload: payload,
         message_type: payload.type,
@@ -292,7 +292,7 @@ export default function Chatbox({
           action: "api_message",
         };
       });
-      updateMessages([...messages]);
+      updateMessages([...newMessages]);
     });
 
     socket.on("new_member_joined", (payload: NewMemberJoined) => {
