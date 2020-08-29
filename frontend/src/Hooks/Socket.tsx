@@ -11,9 +11,11 @@ const useSocketImpl = () => {
         socket?.close();
     
         const token = userData.jwtToken;
-        setSocket(window.io("/", {
-          query: `token=${token}`,
-        }) as SocketIOClient.Socket)
+        if(token) {
+          setSocket(window.io("/", {
+            query: `token=${token}`,
+          }) as SocketIOClient.Socket)
+        }
     
         return () => {
           if (socket) socket.close();

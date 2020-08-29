@@ -30,7 +30,7 @@ export default function YoutubeIframe() {
                 height="100%" 
                 src={youtubeUrl} 
                 frameBorder="0" 
-                allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" 
+                allow="autoplay; encrypted-media; gyroscope; picture-in-picture" 
                 allowFullScreen/>
     )
 }
