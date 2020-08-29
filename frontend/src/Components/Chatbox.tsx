@@ -1,9 +1,18 @@
 import React from "react";
 import { useCookies } from "react-cookie";
+import {
+  ChatBox,
+  Composer,
+  Avatar,
+  Form,
+  Icon,
+  Dropdown,
+  BubbleChat,
+  Button,
+  //@ts-ignore
+} from "@gotitinc/design-system";
 //@ts-ignore
-import { ChatBox, Composer, Avatar, Form, Icon, Dropdown, BubbleChat } from '@gotitinc/design-system';
-//@ts-ignore
-import classNames from 'classnames';
+import classNames from "classnames";
 import FunctionButtonGroup from "./FunctionButtonGroup";
 
 type NewMessagePayload = {
@@ -24,9 +33,9 @@ function UserMessageUI({
   message,
   message_type,
 }: {
-  username: string | null | undefined,
-  message: string | null | undefined,
-  message_type: string | null | undefined,
+  username: string | null | undefined;
+  message: string | null | undefined;
+  message_type: string | null | undefined;
 }) {
   const [hover, setHover] = React.useState(false);
 
@@ -37,18 +46,18 @@ function UserMessageUI({
       onMouseLeave={() => setHover(false)}
     >
       <div className="u-flexShrink-0 u-marginRightExtraSmall">
-        <Avatar src={require('../assets/images/kid-boy.png')} />
+        <Avatar src={require("../assets/images/kid-boy.png")} />
       </div>
       <div className="u-flexGrow-1 u-text200 u-marginTopTiny u-textWordBreak">
         <span
           className={classNames(
-            'u-fontBold u-marginRightExtraSmall u-textLight',
+            "u-fontBold u-marginRightExtraSmall u-textLight"
           )}
         >
           {username}
         </span>
         <span
-          className={classNames(message_type === "global" && 'u-textWarning')}
+          className={classNames(message_type === "global" && "u-textWarning")}
         >
           {message}
         </span>
@@ -57,18 +66,21 @@ function UserMessageUI({
         <div className="u-positionAbsolute u-positionRight u-positionTop">
           <Dropdown alignRight>
             <Dropdown.Toggle className="u-textLight hover:u-textGray u-lineHeightNone u-rotate90">
-              <Icon
-                size="extraSmall"
-                name="more"
-              />
+              <Icon size="extraSmall" name="more" />
             </Dropdown.Toggle>
             <Dropdown.Container
               className="u-paddingVerticalExtraSmall"
               additionalStyles={{ minWidth: 150 }}
             >
-              <Dropdown.Item className="u-cursorPointer u-alignItemsCenter" role="button" onClick={() => {}}>
+              <Dropdown.Item
+                className="u-cursorPointer u-alignItemsCenter"
+                role="button"
+                onClick={() => {}}
+              >
                 <Icon name="flag" size="extraSmall" />
-                <span className="u-marginLeftExtraSmall u-text200 u-textNoWrap">Báo cáo vi phạm</span>
+                <span className="u-marginLeftExtraSmall u-text200 u-textNoWrap">
+                  Báo cáo vi phạm
+                </span>
               </Dropdown.Item>
             </Dropdown.Container>
           </Dropdown>
@@ -82,21 +94,21 @@ function SystemMessageUI({
   message,
   type,
 }: {
-  message: string | null | undefined,
-  type: string | null | undefined,
+  message: string | null | undefined;
+  type: string | null | undefined;
 }) {
   return (
     <div
       className={classNames(
         "u-text200 u-fontItalic u-marginBottomExtraSmall",
         type === "info" && "u-textLight",
-        type === "error" && "u-textNegative",
+        type === "error" && "u-textNegative"
       )}
     >
       {message}
     </div>
   );
-};
+}
 
 function ChatMessage({
   username,
@@ -128,20 +140,15 @@ function ChatMessage({
         />
       );
     case "api_message":
-      return (
-        <SystemMessageUI
-          message={message}
-          type="error"
-        />
-      );
+      return <SystemMessageUI message={message} type="error" />;
     default:
       return null;
   }
 }
 
 type Room = {
-  name: string,
-  count: number
+  name: string;
+  count: number;
 };
 
 type ServerMessage = {
@@ -181,7 +188,9 @@ export default function Chatbox({ serverAddress }: { serverAddress: string }) {
       });
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement> | undefined) => {
+  const handleSubmit = (
+    event: React.FormEvent<HTMLFormElement> | undefined
+  ) => {
     if (event) {
       event.preventDefault();
     }
@@ -302,18 +311,42 @@ export default function Chatbox({ serverAddress }: { serverAddress: string }) {
     <React.Fragment>
       {!isSignedIn && (
         <div className="u-positionAbsolute u-positionFull u-zIndexModal u-flex u-alignItemsEnd">
-          <div className="Modal-backDrop u-positionAbsolute u-positionFull u-backgroundBlack u-zIndex2 Show "/>
-            <div className="u-positionRelative u-zIndex3 u-marginSmall u-marginBottomExtraLarge">
-              <BubbleChat
-                className="u-marginNone"
-                text="Xin chào, đăng nhập vào tài khoàn STEAM for Vietnam LMS của bạn để bất đầu chat với các thành viên khác trong phòng chat này!"
-                type="outbound"
-                avatar={() =>  <Avatar className="u-flexShrink-0 u-marginRightExtraSmall u-marginTopExtraSmall" src={require('../assets/images/nophoto.svg')} />}
-              />
+          <div className="Modal-backDrop u-positionAbsolute u-positionFull u-backgroundBlack u-zIndex2 Show " />
+          <div className="u-positionRelative u-zIndex3 u-marginSmall u-marginBottomExtraLarge">
+            <BubbleChat
+              className="u-marginNone"
+              text="Xin chào, đăng nhập vào tài khoàn STEAM for Vietnam LMS của bạn để bất đầu chat với các thành viên khác trong phòng chat này!"
+              type="outbound"
+              avatar={() => (
+                <Avatar
+                  className="u-flexShrink-0 u-marginRightExtraSmall u-marginTopExtraSmall"
+                  src={require("../assets/images/nophoto.svg")}
+                />
+              )}
+            />
           </div>
         </div>
       )}
       <div className="u-flex u-flexColumn u-flexGrow-1">
+        {/* TODO: Show only for admins */}
+        <div className="u-backgroundWhite u-borderTop u-borderLeft u-borderRight u-paddingExtraSmall u-text200 u-flex u-flexRow">
+          <Dropdown>
+            <Dropdown.Button variant="primary" size="small" onClick={loadRooms}>
+              <Button.Label>Chọn phòng</Button.Label>
+            </Dropdown.Button>
+            <Dropdown.Container
+              id="123"
+              className="u-paddingVerticalExtraSmall"
+              additionalStyles={{ minWidth: 320 }}
+            >
+              {rooms.map((r, i) => (
+                <div className=" u-paddingHorizontalSmall u-paddingVerticalTiny">
+                  <Form.Check type="radio" id={`room-${r}`} label={r} />
+                </div>
+              ))}
+            </Dropdown.Container>
+          </Dropdown>
+        </div>
         <div className="u-backgroundWhite u-borderTop u-borderLeft u-borderRight u-paddingExtraSmall u-text200 u-flex u-flexRow">
           <div className="u-flexGrow-1">
             <div>
@@ -348,26 +381,38 @@ export default function Chatbox({ serverAddress }: { serverAddress: string }) {
             <Composer
               disabledAttachButton
               disabledSendButton={false}
-              sendButtonActive={messageInput.trim() !== '' && isSignedIn}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMessageInput(e.target.value)}
+              sendButtonActive={messageInput.trim() !== "" && isSignedIn}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setMessageInput(e.target.value)
+              }
               inputProps={{
                 value: messageInput,
                 maxRows: 4,
                 placeholder: "Tin nhắn cho lớp ...",
                 disabled: !isSignedIn,
                 onKeyDown: async (e: React.KeyboardEvent<HTMLInputElement>) => {
-                  const keyCode = (e.keyCode || e.which);
-                  if (keyCode === 13 && !e.shiftKey && messageInput.trim() !== '') {
+                  const keyCode = e.keyCode || e.which;
+                  if (
+                    keyCode === 13 &&
+                    !e.shiftKey &&
+                    messageInput.trim() !== ""
+                  ) {
                     e.preventDefault();
                     handleSubmit(undefined);
                   }
-                }
+                },
               }}
               sendButtonProps={{
                 onClick: handleSubmit,
               }}
             />
-            <Form.Check id="send_all" checked={sendAll} label="Send All" onChange={() => setSendAll(!sendAll)} />
+            {/* TODO: Show only for admins */}
+            <Form.Check
+              id="send_all"
+              checked={sendAll}
+              label="Send All"
+              onChange={() => setSendAll(!sendAll)}
+            />
           </ChatBox.Context>
         </ChatBox>
       </div>
