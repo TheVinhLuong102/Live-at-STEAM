@@ -141,7 +141,7 @@ export default function Chatbox() {
         payload: {
           response: `${username} vừa bị báo cáo vi phạm, nếu còn tiếp tục bạn sẽ bị cấm chat!`,
         },
-        action: "api_message",
+        action: "api_message_highlight",
       });
 
       if (username === userData.username) setIsBanned(true);
@@ -153,7 +153,7 @@ export default function Chatbox() {
         payload: {
           response: `${username} đã bị cấm chat!`,
         },
-        action: "api_message",
+        action: "api_message_highlight",
       });
 
       if (username === userData.username) setIsBanned(true);
