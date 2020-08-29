@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - hdoan/fix-install-design-system
 
 jobs:
   build:
@@ -14,12 +15,16 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: '12.16'
-    # - name: Install and run unittest
-    #   run: |
-    #     npm install
-    #     npm test
-    #   env:
-    #     CI: true
+    - name: Install and run unittest
+      run: |
+        cd backend/
+        npm install
+        npm test
+        cd ../frontend
+        npm install
+        npm test
+      env:
+        CI: true
     - name: Publish to Github Packages Registry
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
