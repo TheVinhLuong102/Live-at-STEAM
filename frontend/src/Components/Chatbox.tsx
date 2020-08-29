@@ -204,10 +204,12 @@ export default function Chatbox() {
     socket.on("ban_applied", () => {
       messages.push({
         payload: {
-          response: "You have been banned",
+          response: "Bạn đã bị cấm chat",
         },
         action: "api_message"
       });
+
+      // TODO: Update jwt here to reflect isBanned attribute
 
       updateMessages([...messages]);
     });

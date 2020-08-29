@@ -136,7 +136,7 @@ app.get("/admin/ban", [jwt_express_auth, check_admin], (req, res) => {
       .json({ status: -1, error: "missing params" } as APIResponse);
   }
   let target_user: string = req.query.target_user;
-  UserManager.banUser(target_user)
+  UserManager.banUser(target_user, myChatServer)
     .then(() =>
       res.json({
         status: 1,
@@ -161,7 +161,7 @@ app.get("/api/report", [jwt_express_auth], (req, res) => {
       .json({ status: -1, error: "missing params" } as APIResponse);
   }
   let target_user: string = req.query.target_user;
-  UserManager.reportUser(target_user).then(() => {
+  UserManager.reportUser(target_user, myChatServer).then(() => {
     return res.json({
       status: 1,
       response: `User ${target_user} has been reported.`,

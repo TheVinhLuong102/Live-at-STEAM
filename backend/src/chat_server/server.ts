@@ -218,6 +218,15 @@ export default class NonDistributedChatServer {
     );
   }
 
+  async emitBanMessage(username: string): Promise<void> {
+    const socketIds = Object.keys(this.localSocketState).filter(k => this.localSocketState[k].username == username);
+    if (socketIds.length === 0) {
+      return;
+    }
+
+    this.io.to(socketIds[0]).emit("ban_applied");
+  }
+
   public async socketRemoteJoinRoom(
     socketId: string,
     roomName: string
