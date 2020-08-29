@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - hdoan/fix-install-design-system
 
 jobs:
   build:
@@ -14,12 +15,19 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: '12.16'
-    # - name: Install and run unittest
-    #   run: |
-    #     npm install
-    #     npm test
-    #   env:
-    #     CI: true
+    - uses: webfactory/ssh-agent@v0.4.0
+      with:
+        ssh-private-key: |
+          ${{ secrets.DESIGN_SYSTEM_DEPLOY_KEY }}
+    - name: Install and run unittest
+      # TODO add tests and run here
+      run: |
+        cd frontend/
+        npm install
+        cd ../backend/
+        npm install
+      env:
+        CI: true
     - name: Publish to Github Packages Registry
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
