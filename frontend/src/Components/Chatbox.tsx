@@ -90,17 +90,17 @@ export default function Chatbox() {
     //hacky command handling
     if (sendAll) {
       event_type = "global_message";
-    } else if (messageInput.includes("/join_room")) {
+    } else if (messageInput.startsWith("/join_room")) {
       event_type = "join_room";
       messageToSend = messageInput.replace("/join_room ", "").trim(); // room name
-    } else if (messageInput.includes("/unban")) {
+    } else if (messageInput.startsWith("/unban")) {
       event_type = "unban_user";
       messageToSend = messageInput.replace("/unban ", "").trim(); // user name
-    } else if (messageInput.includes("/ban")) {
+    } else if (messageInput.startsWith("/ban")) {
       event_type = "ban_user";
       messageToSend = messageInput.replace("/ban_user ", "").trim(); // user name
     }
-    
+
     socket?.emit(event_type, messageToSend);
     setTimeout(() => setMessageInput(""), 1);
     setSendAll(false);
