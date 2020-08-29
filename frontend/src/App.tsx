@@ -1,6 +1,4 @@
 import React from "react";
-import logo from "./logo.svg";
-import "./App.css";
 import NavBar from "./Components/Navbar";
 import YoutubeIframe from "./Components/YoutubeIframe";
 import ScratchIframe from "./Components/ScratchIframe";
