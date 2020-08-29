@@ -64,7 +64,7 @@ export function UserMessageUI({
             variant="positive"
             className="u-marginLeftTiny u-fontRegular u-text100"
           >
-            admin
+            Thông báo
           </Badge>
         )}
         <span
