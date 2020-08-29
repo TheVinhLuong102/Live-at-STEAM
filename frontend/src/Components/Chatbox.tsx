@@ -9,6 +9,7 @@ import {
   Icon,
   Dropdown,
   BubbleChat,
+  Separator,
   //@ts-ignore
 } from "@gotitinc/design-system";
 //@ts-ignore
@@ -386,7 +387,20 @@ export default function Chatbox({
             ))}
           </ChatBox.List>
           <ChatBox.Context>
+            <Separator variant="lighter" />
+            {/* TODO: Show only for admins */}
+            {isAdmin && (
+              <div className="u-paddingExtraSmall">
+                <Form.Check
+                  id="send_all"
+                  checked={sendAll}
+                  label="Gửi cho tất cả"
+                  onChange={() => setSendAll(!sendAll)}
+                />
+              </div>
+            )}
             <Composer
+              className="u-borderTopNone"
               disabledAttachButton
               disabledSendButton={false}
               sendButtonActive={messageInput.trim() !== "" && isLoggedIn}
@@ -414,14 +428,6 @@ export default function Chatbox({
                 onClick: handleSubmit,
               }}
             />
-            {isAdmin && (
-              <Form.Check
-                id="send_all"
-                checked={sendAll}
-                label="Send All"
-                onChange={() => setSendAll(!sendAll)}
-              />
-            )}
           </ChatBox.Context>
         </ChatBox>
       </div>
