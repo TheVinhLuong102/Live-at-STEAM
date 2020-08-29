@@ -1,5 +1,6 @@
 import { assert } from "console";
 import f, { fstat } from "fs";
+import ChatServer from "./server";
 
 export enum UserStatus {
   NORMAL,
@@ -26,8 +27,8 @@ export abstract class UserManager {
     status: UserStatus,
     role: Role
   ): Promise<UserState>;
-  abstract async banUser(username: string): Promise<void>;
-  abstract async unbanUser(username: string): Promise<void>;
+  abstract async banUser(username: string, chatServer: ChatServer): Promise<void>;
+  abstract async unbanUser(username: string, chatServer: ChatServer): Promise<void>;
 }
 
 let ADMIN_LIST = [
@@ -117,7 +118,7 @@ class LocalUserManager extends UserManager {
     return userStateMap[username];
   }
 
-  async reportUser(username: string): Promise<void> {
+  async reportUser(username: string, chatServer: ChatServer): Promise<void> {
     let userStateMap = await this.loadUserState().catch((e) => {
       console.error(e);
       throw "Failed to load UserStateMap";
@@ -127,9 +128,9 @@ class LocalUserManager extends UserManager {
     userStateMap[username].reportCount = userStateMap[username].reportCount
       ? userStateMap[username].reportCount + 1
       : 1;
-    if (userStateMap[username].reportCount >= 5) {
-      //  magic number 5
-      await this.banUser(username).catch((e) => console.error(e));
+    if (userStateMap[username].reportCount >= 3) {
+      //  magic number 3
+      await this.banUser(username, chatServer).catch((e) => console.error(e));
     } else {
       await this.writeUserState(userStateMap).catch((e) => {
         console.error(e);
@@ -138,7 +139,7 @@ class LocalUserManager extends UserManager {
     }
   }
 
-  async unbanUser(username: string): Promise<void> {
+  async unbanUser(username: string, chatServer: ChatServer): Promise<void> {
     let userStateMap = await this.loadUserState().catch((e) => {
       console.error(e);
       throw "Failed to load UserStateMap";
@@ -150,9 +151,11 @@ class LocalUserManager extends UserManager {
       console.error(e);
       throw "Failed to write UserStateMap back to disk";
     });
+
+    await chatServer.emitUnbanMessage(username);
   }
 
-  async banUser(username: string): Promise<void> {
+  async banUser(username: string, chatServer: ChatServer): Promise<void> {
     let userStateMap = await this.loadUserState().catch((e) => {
       console.error(e);
       throw "Failed to load UserStateMap";
@@ -166,6 +169,8 @@ class LocalUserManager extends UserManager {
       console.error(e);
       throw "Failed to write UserStateMap back to disk";
     });
+
+    await chatServer.emitBanMessage(username);
   }
 }
 

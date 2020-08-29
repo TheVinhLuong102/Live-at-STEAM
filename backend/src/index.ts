@@ -4,7 +4,7 @@ import ChatServer from "./chat_server/server";
 import jwt from "jsonwebtoken";
 import AuthenticationServer from "./auth/authentication_server";
 import cookieParser from "cookie-parser";
-import UserManager, { Role, UserState } from "./chat_server/member_manager";
+import UserManager, { Role, UserStatus } from "./chat_server/member_manager";
 import {
   jwt_express_auth,
   check_admin,
@@ -52,7 +52,7 @@ app.post("/login", (req, res) => {
           return res.json({
             status: 1,
             access_token: jwt.sign(
-              { username: userState.username, role: userState.role } as DecodedUserData,
+              { username: userState.username, role: userState.role, isBanned: userState.status === UserStatus.BANNED } as DecodedUserData,
               process.env.JWT_SECRET_KEY
             ),
           } as APIResponse);
@@ -114,7 +114,7 @@ app.get("/admin/unban", [jwt_express_auth, check_admin], (req, res) => {
       .json({ status: -1, error: "missing params" } as APIResponse);
   }
   let target_user: string = req.query.target_user;
-  UserManager.unbanUser(target_user)
+  UserManager.unbanUser(target_user, myChatServer)
     .then(() =>
       res.json({
         status: 1,
@@ -136,7 +136,7 @@ app.get("/admin/ban", [jwt_express_auth, check_admin], (req, res) => {
       .json({ status: -1, error: "missing params" } as APIResponse);
   }
   let target_user: string = req.query.target_user;
-  UserManager.banUser(target_user)
+  UserManager.banUser(target_user, myChatServer)
     .then(() =>
       res.json({
         status: 1,
@@ -161,7 +161,7 @@ app.get("/api/report", [jwt_express_auth], (req, res) => {
       .json({ status: -1, error: "missing params" } as APIResponse);
   }
   let target_user: string = req.query.target_user;
-  UserManager.reportUser(target_user).then(() => {
+  UserManager.reportUser(target_user, myChatServer).then(() => {
     return res.json({
       status: 1,
       response: `User ${target_user} has been reported.`,
