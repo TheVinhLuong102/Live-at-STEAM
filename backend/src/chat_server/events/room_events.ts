@@ -21,16 +21,14 @@ export function registerRoomEvents(socket: SocketIO.Socket) {
       !this.localSocketState[socket.id].isAdmin
     )
       return;
-
+    
     if (!(await this.getRoomNames()).includes(roomName)) {
-      console.log(roomName);
-      this.io.to(socket.id).emit("join_room_resp", {
+      return this.io.to(socket.id).emit("join_room_resp", {
         status: -1,
         username: this.localSocketState[socket.id].username,
         room: roomName,
         response: `Không thể tham gia phòng: "${roomName}". Phòng không tồn tại.`,
       } as JoinRoomResponse);
-      return;
     }
     this.socketLocalJoinRoom(socket, roomName)
       .then(() => {
@@ -85,8 +83,11 @@ export function registerRoomEvents(socket: SocketIO.Socket) {
     }
     this.getRooms()
       .then((rooms) => {
+        // filter out joined rooms
+        rooms = rooms.filter(r => !Object.keys(socket.rooms).includes(r.name));
         shuffleArray(rooms);
         if (!rooms.length) return;
+
         this.socketLocalJoinRoom(socket, rooms[0].name).then(() => {
           // broadcast to all participant of the room that a new member has joined
           this.io.to(rooms[0].name).emit("new_member_joined", {
