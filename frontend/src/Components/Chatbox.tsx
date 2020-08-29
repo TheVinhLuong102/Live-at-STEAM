@@ -388,7 +388,6 @@ export default function Chatbox({
           </ChatBox.List>
           <ChatBox.Context>
             <Separator variant="lighter" />
-            {/* TODO: Show only for admins */}
             {isAdmin && (
               <div className="u-paddingExtraSmall">
                 <Form.Check
