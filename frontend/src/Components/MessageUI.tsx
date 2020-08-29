@@ -19,28 +19,23 @@ export function UserMessageUI({
     message,
     messageId,
     message_type,
+    socket,
   }: {
     username: string,
     message: string,
     messageId: string
     message_type: string,
+    socket: SocketIOClient.Socket | null | undefined
   }) {
     const [hover, setHover] = React.useState(false);
     const userData = useUserData();
-    const socket = useSocket();
   
     const handleDeleteMessage = () => {
-      if(!socket)
-        return;
-  
-      socket.emit("delete_message", messageId);
+      socket?.emit("delete_message", messageId);
     }
 
     const handleReportUser = (username: string) => {
-      if(!socket)
-        return;
-
-      socket.emit("report", username);
+      socket?.emit("report", username);
     }
   
     return (
@@ -56,6 +51,7 @@ export function UserMessageUI({
               "u-text200 u-textUppercase",
               chooseColorByString(username),
             )}
+            src={require("../assets/images/kid-boy.png")}
             text={getShortName(username)}
           />
         </div>

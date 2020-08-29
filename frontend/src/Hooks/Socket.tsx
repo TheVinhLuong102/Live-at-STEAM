@@ -9,9 +9,9 @@ const useSocketImpl = () => {
   const [socket, setSocket] = React.useState(
     null as SocketIOClient.Socket | null
   );
+
   React.useEffect(() => {
     socket?.close();
-
     const token = userData.jwtToken;
     if (token) {
       setSocket(
@@ -28,9 +28,9 @@ const useSocketImpl = () => {
     return () => {
       if (socket) socket.close();
     };
-  }, [userData]);
+  }, [userData.isLoggedIn]);
 
   return socket;
 };
 
-export const useSocket = singletonHook(init, useSocketImpl);
+export const useSocket = useSocketImpl;

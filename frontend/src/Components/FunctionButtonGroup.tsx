@@ -9,7 +9,6 @@ import {
   Modal,
 //@ts-ignore
 } from "@gotitinc/design-system";
-import { Room } from "../Types/Common";
 import { UserData } from "../Types/User";
 import { useSocket } from "../Hooks/Socket";
 import { useChatAnalytics } from "../Hooks/Analytics";
@@ -18,14 +17,13 @@ import DropdownWrapper from './DropdownWrapper';
 export default function FunctionButtonGroup({
   isSignedIn,
   isAdmin,
-  userData,
+  socket
 }: {
   isSignedIn: boolean;
   isAdmin: boolean;
-  userData: UserData;
+  socket: SocketIOClient.Socket | null | undefined
 }) {
   const [show, setShow] = React.useState(false);
-  const socket = useSocket();
   const chatAnalytics = useChatAnalytics();
 
   const onSwitchRandomRoom = () => {

@@ -31,10 +31,12 @@ function ChatMessage({
   message_type,
   payload,
   action,
+  socket
 }: {
   message_type?: string;
   payload: any;
   action: string;
+  socket: SocketIOClient.Socket | null | undefined
 }) {
   switch (action) {
     case "new_member_joined":
@@ -51,6 +53,7 @@ function ChatMessage({
           message={payload.msg}
           messageId={payload.message_id}
           message_type={message_type as string}
+          socket={socket}
         />
       );
     case "api_message_highlight":
@@ -259,13 +262,13 @@ export default function Chatbox() {
           <FunctionButtonGroup
             isSignedIn={userData.isLoggedIn}
             isAdmin={isAdmin}
-            userData={userData}
+            socket={socket}
           />
         </div>
         <ChatBox className="u-border u-backgroundWhite">
           <ChatBox.List>
             {messages.map((m, i) => (
-              <ChatMessage key={i} {...m} />
+              <ChatMessage key={i} {...m} socket={socket}/>
             ))}
           </ChatBox.List>
           <ChatBox.Context>
