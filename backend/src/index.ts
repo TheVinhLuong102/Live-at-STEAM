@@ -191,7 +191,7 @@ app.use(express.static("public"));
 
 // fallback URL to redirect other requests to react app
 app.get("*", function (req, res) {
-  res.sendFile("/public/index.html", { root: __dirname });
+  res.sendFile("public/index.html", { root: __dirname });
 });
 
 const http_server = app.listen(process.env.PORT || 3600, () =>
