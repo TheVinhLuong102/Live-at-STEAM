@@ -120,6 +120,7 @@ function SystemMessageUI({
 }
 
 function ChatMessage({ message_type, payload, action }: Message) {
+  console.log({ message_type, payload, action });
   switch (action) {
     case "new_member_joined":
       return (
@@ -132,7 +133,7 @@ function ChatMessage({ message_type, payload, action }: Message) {
       return (
         <UserMessageUI
           username={payload.username}
-          message={payload.message}
+          message={payload.msg}
           message_type={message_type}
         />
       );
@@ -166,7 +167,6 @@ export default function Chatbox({
   const [messages, updateMessages] = React.useState([] as Message[]);
   const [messageInput, setMessageInput] = React.useState("");
   const [cookies] = useCookies(["live-site-jwt"]);
-  const [isSignedIn, setIsSignedIn] = React.useState(false);
   const [rooms, setRooms] = React.useState([] as Room[]);
   const [show, setShow] = React.useState(false);
 
@@ -274,6 +274,7 @@ export default function Chatbox({
     }) as SocketIOClient.Socket;
 
     socket.on("message", (payload: NewMessagePayload) => {
+      console.log(payload);
       messages.push({
         payload: payload,
         message_type: payload.type,
@@ -296,7 +297,7 @@ export default function Chatbox({
           action: "api_message",
         };
       });
-      updateMessages([...messages]);
+      updateMessages([...newMessages]);
     });
 
     socket.on("new_member_joined", (payload: NewMemberJoined) => {
