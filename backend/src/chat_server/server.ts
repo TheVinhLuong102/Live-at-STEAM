@@ -475,6 +475,12 @@ export default class NonDistributedChatServer {
                 username: this.localSocketState[socket.id].username,
                 room: rooms[0].name,
               } as NewMemberJoined);
+              this.io.to(socket.id).emit("join_room_resp", {
+                status: 1,
+                username: this.localSocketState[socket.id].username,
+                room: rooms[0].name,
+                response: `Gia nhập phòng ${rooms[0].name} thành công`,
+              } as JoinRoomResponse);
               this.setupSocketEvents(socket);
             })
             .catch((e) => {

@@ -6,22 +6,21 @@ import {
 } from "../Types/Common";
 import { UserData } from "../Types/User";
 import { useSocket } from "../Hooks/Socket";
+import { useChatAnalytics } from "../Hooks/Analytics";
 
 export default function FunctionButtonGroup({
   isSignedIn,
   isAdmin,
-  loadRooms,
-  rooms,
   userData,
 } : {
   isSignedIn: boolean,
   isAdmin: boolean,
-  loadRooms: Function,
-  rooms: Room[],
   userData: UserData
 }) {
   const [show, setShow] = React.useState(false);
   const socket = useSocket();
+  const chatAnalytics = useChatAnalytics();
+
   const onSwitchRandomRoom = () => {
     socket?.emit("join_random_room");
   }
@@ -67,7 +66,7 @@ export default function FunctionButtonGroup({
         )}
 
         {isAdmin && (
-          <Dropdown alignRight onToggle={loadRooms}>
+          <Dropdown alignRight>
             <Overlay.Trigger
               key="bottom"
               placement="top"
@@ -84,7 +83,7 @@ export default function FunctionButtonGroup({
               </Dropdown.Button>
             </Overlay.Trigger>
             <Dropdown.Container className="u-paddingVerticalExtraSmall">
-              {rooms.map((r, i) => (
+              {chatAnalytics.rooms.map((r, i) => (
                 <Dropdown.Item key={r.count} onClick={() => onSwitchRoom(r.name)} className="u-cursorPointer">
                   <span className="u-marginLeftExtraSmall">{r.name}</span>
                 </Dropdown.Item>

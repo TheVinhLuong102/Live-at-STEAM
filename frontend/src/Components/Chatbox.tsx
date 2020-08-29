@@ -28,6 +28,7 @@ import {UserMessageUI, SystemMessageUI} from "./MessageUI";
 import FunctionButtonGroup from "./FunctionButtonGroup";
 import { useUserData } from "../Hooks/User";
 import { useSocket } from "../Hooks/Socket";
+import { useChatAnalytics } from "../Hooks/Analytics";
 
 function ChatMessage({ message_type, payload, action }: Message) {
   switch (action) {
@@ -62,32 +63,14 @@ function ChatMessage({ message_type, payload, action }: Message) {
 export default function Chatbox() {
   const [messages, updateMessages] = React.useState([] as Message[]);
   const [messageInput, setMessageInput] = React.useState("");
-  const [rooms, setRooms] = React.useState([] as Room[]);
+  const [currentRoom, setCurrentRoom] = React.useState(null as null | string);  
   const [sendAll, setSendAll] = React.useState(false);
   const socket = useSocket();
   const userData = useUserData();
+  const chatAnalytics = useChatAnalytics();
 
   const isAdmin = userData?.isLoggedIn && userData?.role === 0;
 
-  const loadRooms = () => {
-    fetch(`/api/getRooms`, {
-      method: "GET",
-      credentials: "same-origin",
-      headers: {
-        "Content-type": "application/json",
-      },
-    })
-      .then((r) => r.json())
-      .then((r) => {
-        console.log(r);
-        let response: Room[] = r.response;
-        console.log(response);
-        setRooms(response);
-      })
-      .catch((e) => {
-        console.error(e);
-      });
-  };
 
   const handleSubmit = (
     event: React.FormEvent<HTMLFormElement> | undefined
@@ -123,7 +106,7 @@ export default function Chatbox() {
             payload: r,
             action: "api_message",
           });
-          updateMessages([...messages]); // have to do this to trigger rerender
+          updateMessages([...messages]); 
         })
         .catch((e) => {
           console.error(e);
@@ -148,7 +131,7 @@ export default function Chatbox() {
             payload: r,
             action: "api_message",
           });
-          updateMessages([...messages]); // have to do this to trigger rerender
+          updateMessages([...messages]); 
         })
         .catch((e) => {
           console.error(e);
@@ -171,7 +154,7 @@ export default function Chatbox() {
         message_type: payload.type,
         action: "message",
       });
-      updateMessages([...messages]); // have to do this to trigger rerender
+      updateMessages([...messages]); 
     });
 
     socket.on("delete_message", (payload: DeleteMessagePayload) => {
@@ -196,7 +179,7 @@ export default function Chatbox() {
         payload: payload,
         action: "new_member_joined",
       });
-      updateMessages([...messages]); // have to do this to trigger rerender
+      updateMessages([...messages]); 
     });
 
     socket.on("join_room_resp", (payload: JoinRoomResponse) => {
@@ -204,7 +187,11 @@ export default function Chatbox() {
         payload: payload,
         action: "api_message",
       });
-      updateMessages([...messages]); // have to do this to trigger rerender
+
+      if(payload.status === 1) 
+        setCurrentRoom(payload.room);
+
+      updateMessages([...messages]); 
     });
 
     return () => {
@@ -244,21 +231,19 @@ export default function Chatbox() {
           <div className="u-flexGrow-1">
             <div>
               <span>Số người đang chat:&nbsp;</span>
-              <span className="u-fontMedium">2401</span>
+              <span className="u-fontMedium">{chatAnalytics.numUsers}</span>
             </div>
             <div>
               <span>Số phòng chat:&nbsp;</span>
-              <span className="u-fontMedium">1</span>
+              <span className="u-fontMedium">{chatAnalytics.numRooms}</span>
             </div>
             <div>
               <span>Phòng chat hiện tại:&nbsp;</span>
-              <span className="u-fontMedium">1</span>
+              <span className="u-fontMedium">{currentRoom}</span>
             </div>
           </div>
           <FunctionButtonGroup
             isSignedIn={userData.isLoggedIn}
-            loadRooms={loadRooms}
-            rooms={rooms}
             isAdmin={isAdmin}
             userData={userData}
           />
