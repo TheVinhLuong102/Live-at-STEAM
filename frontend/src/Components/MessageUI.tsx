@@ -133,22 +133,22 @@ export function UserMessageUI({
     );
   }
 
-  export function SystemMessageUI({
-    message,
-    type,
-  }: {
-    message: string | null | undefined;
-    type: string | null | undefined;
-  }) {
-    return (
-      <div
-        className={classNames(
-          "u-text100 u-fontItalic u-marginBottomExtraSmall",
-          type === "info" && "u-textLight",
-          type === "error" && "u-textNegative"
-        )}
-      >
-        {message}
-      </div>
-    );
-  }
+export function SystemMessageUI({
+  message,
+  type,
+}: {
+  message: string | null | undefined;
+  type: string | null | undefined;
+}) {
+  return (
+    <div
+      className={classNames(
+        "u-text100 u-fontItalic u-marginBottomExtraSmall",
+        type === "info" && "u-textLight",
+        type === "error" && "u-textNegative"
+      )}
+    >
+      {message}
+    </div>
+  );
+}

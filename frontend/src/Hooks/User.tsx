@@ -30,8 +30,6 @@ export function useUserData() {
     }
   }, [cookies]);
 
-  console.log({userData})
-
   return userData;
 }
 

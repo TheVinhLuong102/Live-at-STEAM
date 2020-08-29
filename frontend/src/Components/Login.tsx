@@ -31,7 +31,6 @@ export default function Login() {
         return res.json();
       })
       .then((data) => {
-        console.log({data})
         if (data.status == 1) {
           // Save JWT to cookie
           setCookie("live-site-jwt", data.access_token, { path: "/" });
