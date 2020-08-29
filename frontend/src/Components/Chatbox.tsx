@@ -168,8 +168,7 @@ export default function Chatbox({
 
   const isAdmin = isLoggedIn && userData?.role == 0;
 
-  const loadRooms = (event: any) => {
-    event.preventDefault();
+  const loadRooms = () => {
     fetch(`/api/getRooms`, {
       method: "GET",
       credentials: "same-origin",
@@ -188,6 +187,11 @@ export default function Chatbox({
         console.error(e);
       });
   };
+
+  const joinRoom = (room: Room) => {
+    // TODO: Add join room logic
+    console.log(room);
+  }
 
   const handleSubmit = (
     event: React.FormEvent<HTMLFormElement> | undefined
@@ -340,12 +344,8 @@ export default function Chatbox({
       <div className="u-flex u-flexColumn u-flexGrow-1">
         {isAdmin && (
           <div className="u-backgroundWhite u-borderTop u-borderLeft u-borderRight u-paddingExtraSmall u-text200 u-flex u-flexRow">
-            <Dropdown>
-              <Dropdown.Button
-                variant="primary"
-                size="small"
-                onClick={loadRooms}
-              >
+            <Dropdown onToggle={loadRooms}>
+              <Dropdown.Button variant="primary" size="small">
                 <Button.Label>Chọn phòng</Button.Label>
               </Dropdown.Button>
               <Dropdown.Container
@@ -354,9 +354,9 @@ export default function Chatbox({
                 additionalStyles={{ minWidth: 320 }}
               >
                 {rooms.map((r, i) => (
-                  <div className=" u-paddingHorizontalSmall u-paddingVerticalTiny">
-                    <Form.Check type="radio" id={`room-${r}`} label={r} />
-                  </div>
+                  <Dropdown.Item key={r.count} onClick={joinRoom.bind(r)}>
+                    <span className="u-marginLeftExtraSmall">{r.name}</span>
+                  </Dropdown.Item>
                 ))}
               </Dropdown.Container>
             </Dropdown>
