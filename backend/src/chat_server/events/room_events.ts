@@ -84,7 +84,7 @@ export function registerRoomEvents(socket: SocketIO.Socket) {
     this.getRooms()
       .then((rooms) => {
         // filter out joined rooms
-        rooms = rooms.filter(r => !Object.keys(socket.rooms).includes(rooms));
+        rooms = rooms.filter(r => !Object.keys(socket.rooms).includes(r.name));
         shuffleArray(rooms);
         if (!rooms.length) return;
 
