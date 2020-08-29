@@ -3,9 +3,11 @@ import jwt from "jsonwebtoken";
 import { Role, UserStatus, UserState } from "./member_manager";
 import { verifyTokenAndGetUserState } from "../auth/jwt_auth";
 import { KeyValueStorage } from "../storage/key_value";
-import Config from "../settings";
-import { report } from "process";
-import { registerRoomEvents, JoinRoomResponse, NewMemberJoined, } from "./events/room_events";
+import {
+  registerRoomEvents,
+  JoinRoomResponse,
+  NewMemberJoined,
+} from "./events/room_events";
 import { registerMessageEvents } from "./events/message_events";
 import { registerReportEvents } from "./events/report_events";
 
@@ -16,9 +18,9 @@ type SessionStore = {
   isBanned?: boolean;
 };
 
-type Room = {	
-  name: string;	
-  count: number;	
+type Room = {
+  name: string;
+  count: number;
 };
 
 type SocketClientID = string;
