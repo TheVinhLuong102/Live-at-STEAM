@@ -9,28 +9,23 @@ import {
   Icon,
   Dropdown,
   BubbleChat,
+  Separator,
+  Badge,
   //@ts-ignore
 } from "@gotitinc/design-system";
 //@ts-ignore
 import classNames from "classnames";
 import jwtDecode from "jwt-decode";
 import { UserData } from "../Types/User";
+import {
+  NewMessagePayload,
+  DeleteMessagePayload,
+  NewMemberJoined,
+  Room,
+  Message,
+} from "../Types/Common";
 import FunctionButtonGroup from "./FunctionButtonGroup";
 
-type NewMessagePayload = {
-  username: string;
-  message_id: string;
-  msg: string;
-  type: string;
-};
-type DeleteMessagePayload = {
-  message_id: string;
-};
-
-type NewMemberJoined = {
-  username: string;
-  room: string;
-};
 
 let socket: SocketIOClient.Socket | null = null;
 
@@ -57,13 +52,19 @@ function UserMessageUI({
       <div className="u-flexGrow-1 u-text200 u-marginTopTiny u-textWordBreak">
         <span
           className={classNames(
-            "u-fontBold u-marginRightExtraSmall u-textLight"
+            "u-fontBold u-textLight"
           )}
         >
           {username}
         </span>
+        {message_type === "global" && (
+          <Badge variant="positive" className="u-marginLeftTiny">Admin</Badge>
+        )}
         <span
-          className={classNames(message_type === "global" && "u-textWarning")}
+          className={classNames(
+            "u-marginLeftExtraSmall",
+            message_type === "global" && "u-textPositive"
+          )}
         >
           {message}
         </span>
@@ -140,16 +141,7 @@ function ChatMessage({ message_type, payload, action }: Message) {
   }
 }
 
-type Room = {
-  name: string;
-  count: number;
-};
 
-type Message = {
-  message_type?: string;
-  payload: any;
-  action: string;
-};
 
 export default function Chatbox({
   serverAddress,
@@ -342,26 +334,6 @@ export default function Chatbox({
         </div>
       )}
       <div className="u-flex u-flexColumn u-flexGrow-1">
-        {isAdmin && (
-          <div className="u-backgroundWhite u-borderTop u-borderLeft u-borderRight u-paddingExtraSmall u-text200 u-flex u-flexRow">
-            <Dropdown onToggle={loadRooms}>
-              <Dropdown.Button variant="primary" size="small">
-                <Button.Label>Chọn phòng</Button.Label>
-              </Dropdown.Button>
-              <Dropdown.Container
-                id="123"
-                className="u-paddingVerticalExtraSmall"
-                additionalStyles={{ minWidth: 320 }}
-              >
-                {rooms.map((r, i) => (
-                  <Dropdown.Item key={r.count} onClick={joinRoom.bind(r)}>
-                    <span className="u-marginLeftExtraSmall">{r.name}</span>
-                  </Dropdown.Item>
-                ))}
-              </Dropdown.Container>
-            </Dropdown>
-          </div>
-        )}
         <div className="u-backgroundWhite u-borderTop u-borderLeft u-borderRight u-paddingExtraSmall u-text200 u-flex u-flexRow">
           <div className="u-flexGrow-1">
             <div>
@@ -377,7 +349,13 @@ export default function Chatbox({
               <span className="u-fontMedium">1</span>
             </div>
           </div>
-          <FunctionButtonGroup isSignedIn={isLoggedIn} />
+          <FunctionButtonGroup
+            isSignedIn={isLoggedIn}
+            loadRooms={loadRooms}
+            rooms={rooms}
+            joinRoom={joinRoom}
+            isAdmin={isAdmin}
+          />
         </div>
         <ChatBox className="u-border u-backgroundWhite">
           <ChatBox.List>
@@ -386,7 +364,19 @@ export default function Chatbox({
             ))}
           </ChatBox.List>
           <ChatBox.Context>
+            <Separator variant="lighter" />
+            {isAdmin && (
+              <div className="u-paddingExtraSmall">
+                <Form.Check
+                  id="send_all"
+                  checked={sendAll}
+                  label="Gửi cho tất cả"
+                  onChange={() => setSendAll(!sendAll)}
+                />
+              </div>
+            )}
             <Composer
+              className="u-borderTopNone"
               disabledAttachButton
               disabledSendButton={false}
               sendButtonActive={messageInput.trim() !== "" && isLoggedIn}
@@ -414,14 +404,6 @@ export default function Chatbox({
                 onClick: handleSubmit,
               }}
             />
-            {isAdmin && (
-              <Form.Check
-                id="send_all"
-                checked={sendAll}
-                label="Send All"
-                onChange={() => setSendAll(!sendAll)}
-              />
-            )}
           </ChatBox.Context>
         </ChatBox>
       </div>

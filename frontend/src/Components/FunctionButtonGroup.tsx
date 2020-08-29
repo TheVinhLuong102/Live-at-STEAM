@@ -1,8 +1,23 @@
 import React from "react";
 //@ts-ignore
 import { Button, Icon, Dropdown, Overlay, Tooltip, Modal } from '@gotitinc/design-system';
+import {
+  Room,
+} from "../Types/Common";
 
-export default function FunctionButtonGroup({ isSignedIn }: {isSignedIn: boolean }) {
+export default function FunctionButtonGroup({
+  isSignedIn,
+  isAdmin,
+  loadRooms,
+  rooms,
+  joinRoom,
+} : {
+  isSignedIn: boolean,
+  isAdmin: boolean,
+  loadRooms: Function,
+  rooms: Array<Room>,
+  joinRoom: Function,
+}) {
   const [show, setShow] = React.useState(false);
 
   const onSwitchRoomConfirm = () => {
@@ -31,31 +46,60 @@ export default function FunctionButtonGroup({ isSignedIn }: {isSignedIn: boolean
         </div>
       )}
       <div className="u-flexShrink-0 u-flex u-alignItemsCenter u-justifyContentCenter">
-        <Dropdown alignRight>
-          <Dropdown.Button onlyIcon variant="positive_outline" className="u-roundedCircle u-marginRightExtraSmall is-disabled">
-            <Button.Icon><Icon name="raiseHand"/></Button.Icon>
-          </Dropdown.Button>
-          <Dropdown.Container className="u-overflowHidden u-borderNone">
-            <div 
-              className="u-paddingExtraSmall u-backgroundBlack u-textWhite"
+        {!isAdmin && (
+          <Dropdown alignRight>
+            <Dropdown.Button onlyIcon variant="positive_outline" className="u-roundedCircle u-marginRightExtraSmall is-disabled">
+              <Button.Icon><Icon name="raiseHand"/></Button.Icon>
+            </Dropdown.Button>
+            <Dropdown.Container className="u-overflowHidden u-borderNone">
+              <div
+                className="u-paddingExtraSmall u-backgroundBlack u-textWhite"
+              >
+                Chức năng giơ tay sẽ được cập nhật trong các phiên bản sau!
+              </div>
+            </Dropdown.Container>
+          </Dropdown>
+        )}
+
+        {isAdmin && (
+          <Dropdown alignRight onToggle={loadRooms}>
+            <Overlay.Trigger
+              key="bottom"
+              placement="top"
+              hoverOverlay
+              delay={{ show: 0, hide: 1 }}
+              overlay={(props: Object) => (
+                <Tooltip id="tooltip-choose-room" {...props}>
+                  Chọn phòng chat
+                </Tooltip>
+              )}
             >
-              Chức năng giơ tay sẽ được cập nhật trong các phiên bản sau!
-            </div>
-          </Dropdown.Container>
-        </Dropdown>
+              <Dropdown.Button onlyIcon variant="primary" className="u-roundedCircle u-marginRightExtraSmall">
+                <Button.Icon><Icon name="people"/></Button.Icon>
+              </Dropdown.Button>
+            </Overlay.Trigger>
+            <Dropdown.Container className="u-paddingVerticalExtraSmall">
+              {rooms.map((r, i) => (
+                <Dropdown.Item key={r.count} onClick={joinRoom.bind(r)} className="u-cursorPointer">
+                  <span className="u-marginLeftExtraSmall">{r.name}</span>
+                </Dropdown.Item>
+              ))}
+            </Dropdown.Container>
+          </Dropdown>
+        )}
 
         <Overlay.Trigger
           key="bottom"
-          placement="bottom"
+          placement="top"
           hoverOverlay
-          delay={{ show: 0, hide: 100 }}
+          delay={{ show: 0, hide: 1 }}
           overlay={(props: Object) => (
             <Tooltip id="tooltip-change-room" {...props}>
-              Chuyển sang phòng chat khác
+              Chuyển phòng chat khác
             </Tooltip>
           )}
         >
-          <Button onlyIcon variant="primary_outline" className="u-roundedCircle" onClick={() => setShow(true)}>
+          <Button onlyIcon variant="accent" className="u-roundedCircle" onClick={() => setShow(true)}>
             <Button.Icon><Icon name="arrowForward"/></Button.Icon>
           </Button>
         </Overlay.Trigger>
