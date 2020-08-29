@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - hdoan/https
 
 jobs:
   build:
