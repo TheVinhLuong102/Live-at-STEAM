@@ -34,6 +34,7 @@ export abstract class UserManager {
 }
 
 let ADMIN_LIST = [
+  "s4vadmin",
   "tuananh-pham",
   "hungdoan",
   "Rosie",
