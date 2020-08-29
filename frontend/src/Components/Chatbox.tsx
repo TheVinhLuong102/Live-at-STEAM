@@ -89,11 +89,6 @@ export default function Chatbox() {
       });
   };
 
-  const joinRoom = (room: Room) => {
-    // TODO: Add join room logic
-    console.log(room);
-  }
-
   const handleSubmit = (
     event: React.FormEvent<HTMLFormElement> | undefined
   ) => {
@@ -264,7 +259,6 @@ export default function Chatbox() {
             isSignedIn={userData.isLoggedIn}
             loadRooms={loadRooms}
             rooms={rooms}
-            joinRoom={joinRoom}
             isAdmin={isAdmin}
             userData={userData}
           />

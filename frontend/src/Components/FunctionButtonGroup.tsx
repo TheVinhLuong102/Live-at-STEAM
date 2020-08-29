@@ -12,22 +12,22 @@ export default function FunctionButtonGroup({
   isAdmin,
   loadRooms,
   rooms,
-  joinRoom,
   userData,
 } : {
   isSignedIn: boolean,
   isAdmin: boolean,
   loadRooms: Function,
   rooms: Room[],
-  joinRoom: Function,
   userData: UserData
 }) {
   const [show, setShow] = React.useState(false);
   const socket = useSocket();
-  const onSwitchRoomConfirm = () => {
-
-    console.log('confirmed');
+  const onSwitchRandomRoom = () => {
     socket?.emit("join_random_room");
+  }
+
+  const onSwitchRoom = (roomName: string) => {
+    socket?.emit("join_room", roomName);
   }
 
   return (
@@ -44,7 +44,7 @@ export default function FunctionButtonGroup({
                 </div>
               </Modal.Body>
               <Modal.Footer>
-                <Button variant="primary" width="full" onClick={onSwitchRoomConfirm}>Chuyển phòng</Button>
+                <Button variant="primary" width="full" onClick={onSwitchRandomRoom}>Chuyển phòng</Button>
               </Modal.Footer>
             </Modal>
           </div>
@@ -85,7 +85,7 @@ export default function FunctionButtonGroup({
             </Overlay.Trigger>
             <Dropdown.Container className="u-paddingVerticalExtraSmall">
               {rooms.map((r, i) => (
-                <Dropdown.Item key={r.count} onClick={joinRoom.bind(r)} className="u-cursorPointer">
+                <Dropdown.Item key={r.count} onClick={() => onSwitchRoom(r.name)} className="u-cursorPointer">
                   <span className="u-marginLeftExtraSmall">{r.name}</span>
                 </Dropdown.Item>
               ))}
