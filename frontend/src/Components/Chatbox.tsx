@@ -25,20 +25,34 @@ import {
   Message,
 } from "../Types/Common";
 import FunctionButtonGroup from "./FunctionButtonGroup";
+import { useUserData } from "../Hooks/User";
+import { useSocket } from "../Hooks/Socket";
 
 
-let socket: SocketIOClient.Socket | null = null;
 
 function UserMessageUI({
   username,
   message,
+  messageId,
   message_type,
 }: {
-  username: string | null | undefined;
-  message: string | null | undefined;
-  message_type: string | null | undefined;
+  username: string,
+  message: string,
+  messageId: string
+  message_type: string,
 }) {
   const [hover, setHover] = React.useState(false);
+  const userData = useUserData();
+  const socket = useSocket();
+
+  const handleDeleteMessage = (e: any) => {
+    if(!socket)
+      return;
+
+    socket.emit("delete_message", messageId);
+  }
+
+
 
   return (
     <div
@@ -89,6 +103,17 @@ function UserMessageUI({
                   Báo cáo vi phạm
                 </span>
               </Dropdown.Item>
+              {userData?.role == 0 && (
+                <Dropdown.Item
+                  className="u-cursorPointer u-alignItemsCenter"
+                  role="button"
+                >
+                  <Icon name="closeCircleOutline" size="extraSmall" />
+                  <span onClick={handleDeleteMessage} className="u-marginLeftExtraSmall u-text200 u-textNoWrap">
+                    Xoá tin nhắn
+                  </span>
+                </Dropdown.Item>
+              )}
             </Dropdown.Container>
           </Dropdown>
         </div>
@@ -131,7 +156,8 @@ function ChatMessage({ message_type, payload, action }: Message) {
         <UserMessageUI
           username={payload.username}
           message={payload.msg}
-          message_type={message_type}
+          messageId={payload.message_id}
+          message_type={message_type as string}
         />
       );
     case "api_message":
@@ -143,22 +169,16 @@ function ChatMessage({ message_type, payload, action }: Message) {
 
 
 
-export default function Chatbox({
-  serverAddress,
-  isLoggedIn,
-  userData,
-}: {
-  serverAddress: string;
-  isLoggedIn: boolean;
-  userData: UserData | null | undefined;
-}) {
+export default function Chatbox({ serverAddress }: { serverAddress: string }) {
   const [messages, updateMessages] = React.useState([] as Message[]);
   const [messageInput, setMessageInput] = React.useState("");
-  const [cookies] = useCookies(["live-site-jwt"]);
   const [rooms, setRooms] = React.useState([] as Room[]);
   const [sendAll, setSendAll] = React.useState(false);
+  const [show, setShow] = React.useState(false);
+  const socket = useSocket();
+  const userData = useUserData();
 
-  const isAdmin = isLoggedIn && userData?.role == 0;
+  const isAdmin = userData?.isLoggedIn && userData?.role == 0;
 
   const loadRooms = () => {
     fetch(`/api/getRooms`, {
@@ -209,7 +229,7 @@ export default function Chatbox({
         credentials: "same-origin",
         headers: {
           "Content-type": "application/json",
-          Authorization: `Bearer ${cookies["live-site-jwt"]}`,
+          Authorization: `Bearer ${userData.jwtToken}`,
         },
       })
         .then((r) => r.json())
@@ -234,7 +254,7 @@ export default function Chatbox({
         credentials: "same-origin",
         headers: {
           "Content-type": "application/json",
-          Authorization: `Bearer ${cookies["live-site-jwt"]}`,
+          Authorization: `Bearer ${userData.jwtToken}`,
         },
       })
         .then((r) => r.json())
@@ -251,20 +271,14 @@ export default function Chatbox({
         });
       setTimeout(() => setMessageInput(""), 1);
     }
-
     socket?.emit(event_type, messageToSend);
     setTimeout(() => setMessageInput(""), 1);
     setSendAll(false);
   };
 
   React.useEffect(() => {
-    socket?.close();
-
-    const token = cookies["live-site-jwt"];
-
-    socket = window.io(serverAddress, {
-      query: `token=${token}`,
-    }) as SocketIOClient.Socket;
+    if(!socket)
+      return;
 
     socket.on("message", (payload: NewMessagePayload) => {
       console.log(payload);
@@ -276,21 +290,21 @@ export default function Chatbox({
       updateMessages([...messages]); // have to do this to trigger rerender
     });
 
-    socket.on("delete_mesage", (payload: DeleteMessagePayload) => {
-      const newMessages = messages.map((m) => {
-        if (
-          m.action != "message" ||
-          (m.payload as NewMessagePayload).message_id != payload.message_id
-        )
-          return m;
-        return {
-          payload: {
-            response: "Message was deleted by Admin",
-          },
-          action: "api_message",
-        };
-      });
-      updateMessages([...newMessages]);
+    socket.on("delete_message", (payload: DeleteMessagePayload) => {
+      for(let i = 0; i < messages.length; ++i) {
+        if(messages[i].action == "message" &&
+        (messages[i].payload as NewMessagePayload).message_id == payload.message_id) {
+          messages[i] = {
+            payload: {
+              response: "Message was deleted by Admin",
+            },
+            action: "api_message",
+          };
+          break;
+        }
+      }
+     
+      updateMessages([...messages]);
     });
 
     socket.on("new_member_joined", (payload: NewMemberJoined) => {
@@ -302,9 +316,9 @@ export default function Chatbox({
     });
 
     return () => {
-      if (socket) socket.close();
-    };
-  }, [cookies["live-site-jwt"]]);
+      if(socket) socket.close();
+    }
+  }, [socket]);
 
   //auto scroll
   React.useEffect(() => {
@@ -315,7 +329,7 @@ export default function Chatbox({
 
   return (
     <React.Fragment>
-      {!isLoggedIn && (
+      {!userData.isLoggedIn && (
         <div className="u-positionAbsolute u-positionFull u-zIndexModal u-flex u-alignItemsEnd">
           <div className="Modal-backDrop u-positionAbsolute u-positionFull u-backgroundBlack u-zIndex2 Show " />
           <div className="u-positionRelative u-zIndex3 u-marginSmall u-marginBottomExtraLarge">
@@ -350,7 +364,7 @@ export default function Chatbox({
             </div>
           </div>
           <FunctionButtonGroup
-            isSignedIn={isLoggedIn}
+            isSignedIn={userData.isLoggedIn}
             loadRooms={loadRooms}
             rooms={rooms}
             joinRoom={joinRoom}
@@ -379,7 +393,7 @@ export default function Chatbox({
               className="u-borderTopNone"
               disabledAttachButton
               disabledSendButton={false}
-              sendButtonActive={messageInput.trim() !== "" && isLoggedIn}
+              sendButtonActive={messageInput.trim() !== "" && userData.isLoggedIn}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setMessageInput(e.target.value)
               }
@@ -387,7 +401,7 @@ export default function Chatbox({
                 value: messageInput,
                 maxRows: 4,
                 placeholder: "Tin nhắn cho lớp ...",
-                disabled: !isLoggedIn,
+                disabled: !userData.isLoggedIn,
                 onKeyDown: async (e: React.KeyboardEvent<HTMLInputElement>) => {
                   const keyCode = e.keyCode || e.which;
                   if (

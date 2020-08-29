@@ -4,7 +4,7 @@ import { Header, Logo, SafeAnchor,Badge } from '@gotitinc/design-system';
 import {UserData} from '../Types/User';
 import Login from "./Login";
 
-export default function NavBar({isLoggedIn, userData} : {isLoggedIn: boolean, userData: UserData | null | undefined}) {
+export default function NavBar() {
   return (
     <Header fullWidth>
       <Header.Brand>
@@ -17,7 +17,7 @@ export default function NavBar({isLoggedIn, userData} : {isLoggedIn: boolean, us
           <div><Badge variant="primary_subtle">256 người đang xem </Badge></div>
         </Header.Left>
         <Header.Right>
-          <Login isLoggedIn={isLoggedIn} userData={userData}/>
+          <Login/>
         </Header.Right>
       </Header.Main>
     </Header>

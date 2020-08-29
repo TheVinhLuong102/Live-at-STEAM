@@ -10,27 +10,6 @@ import { UserData } from "./Types/User";
 import jwtDecode from "jwt-decode";
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
-  const [userData, setUserData] = React.useState(null as UserData | null);
-  const [cookies] = useCookies(["live-site-jwt"]);
-  React.useEffect(() => {
-    const token = cookies["live-site-jwt"];
-
-    if (token) {
-      try {
-        let decodedUserData: UserData = jwtDecode(token);
-        setUserData(decodedUserData);
-        setIsLoggedIn(true);
-      } catch (e) {
-        console.error(e);
-        setIsLoggedIn(false);
-        console.log("Failed to decode jwt token from cookies");
-      }
-    } else {
-      setIsLoggedIn(false);
-    }
-  }, [cookies["live-site-jwt"]]);
-
   return (
     <PageLayout
       style={{
@@ -38,7 +17,7 @@ function App() {
       }}
     >
       <PageLayout.Header className="u-borderBottom">
-        <NavBar isLoggedIn={isLoggedIn} userData={userData}/>
+        <NavBar />
       </PageLayout.Header>
       <PageLayout.Body className="u-overflowVerticalAuto u-webkitScrollbar">
         <div className="Container Container--fluid u-paddingTopMedium u-paddingBottomSmall u-flex u-flexColumn u-backgroundOpaline">
@@ -47,7 +26,7 @@ function App() {
               <YoutubeIframe />
             </div>
             <div className="u-size3of12 u-flex u-positionRelative">
-              <Chatbox serverAddress="/" isLoggedIn={isLoggedIn} userData={userData}/>
+              <Chatbox serverAddress="/" />
             </div>
           </div>
         </div>
