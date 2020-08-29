@@ -230,16 +230,16 @@ export default function Chatbox() {
         <div className="u-backgroundWhite u-borderTop u-borderLeft u-borderRight u-paddingExtraSmall u-text200 u-flex u-flexRow">
           <div className="u-flexGrow-1">
             <div>
-              <span>Số người đang chat:&nbsp;</span>
-              <span className="u-fontMedium">{chatAnalytics.numUsers}</span>
-            </div>
-            <div>
               <span>Số phòng chat:&nbsp;</span>
               <span className="u-fontMedium">{chatAnalytics.numRooms}</span>
             </div>
             <div>
               <span>Phòng chat hiện tại:&nbsp;</span>
               <span className="u-fontMedium">{currentRoom}</span>
+            </div>
+            <div>
+              <span>Số người trong phòng:&nbsp;</span>
+              <span className="u-fontMedium">{chatAnalytics.rooms.filter((r) => r.name === currentRoom)?.[0]?.count}</span>
             </div>
           </div>
           <FunctionButtonGroup

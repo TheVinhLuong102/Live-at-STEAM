@@ -21,6 +21,7 @@
     "@types/socket.io": "^2.1.11",
     "@types/socket.io-client": "^1.4.33",
     "jwt-decode": "^2.2.0",
+    "prettier": "^2.1.1",
     "react": "^16.13.1",
     "react-cookie": "^4.0.3",
     "react-dom": "^16.13.1",
