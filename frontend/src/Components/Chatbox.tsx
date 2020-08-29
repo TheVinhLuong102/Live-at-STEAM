@@ -41,10 +41,12 @@ function UserMessageUI({
   username,
   message,
   message_type,
+  reportUser,
 }: {
   username: string | null | undefined;
   message: string | null | undefined;
   message_type: string | null | undefined;
+  reportUser: (username: string) => void;
 }) {
   const [hover, setHover] = React.useState(false);
 
@@ -84,7 +86,9 @@ function UserMessageUI({
               <Dropdown.Item
                 className="u-cursorPointer u-alignItemsCenter"
                 role="button"
-                onClick={() => {}}
+                onClick={() => {
+                  if (username) reportUser(username);
+                }}
               >
                 <Icon name="flag" size="extraSmall" />
                 <span className="u-marginLeftExtraSmall u-text200 u-textNoWrap">
@@ -119,7 +123,17 @@ function SystemMessageUI({
   );
 }
 
-function ChatMessage({ message_type, payload, action }: Message) {
+function ChatMessage({
+  message_type,
+  payload,
+  action,
+  reportUser,
+}: {
+  message_type?: string;
+  payload: any;
+  action: string;
+  reportUser: (username: string) => void;
+}) {
   console.log({ message_type, payload, action });
   switch (action) {
     case "new_member_joined":
@@ -135,6 +149,7 @@ function ChatMessage({ message_type, payload, action }: Message) {
           username={payload.username}
           message={payload.msg}
           message_type={message_type}
+          reportUser={reportUser}
         />
       );
     case "api_message":
@@ -208,32 +223,6 @@ export default function Chatbox({
     } else if (messageInput.includes("/join_room")) {
       event_type = "join_room";
       messageToSend = messageInput.replace("/join_room ", "").trim(); // room name
-    } else if (messageInput.includes("/report")) {
-      // this is handled via API
-      event_type = "report";
-      let userName = messageInput.replace("/report ", "").trim(); // room number
-      fetch(`/api/report?target_user=${userName}`, {
-        method: "GET",
-        credentials: "same-origin",
-        headers: {
-          "Content-type": "application/json",
-          Authorization: `Bearer ${cookies["live-site-jwt"]}`,
-        },
-      })
-        .then((r) => r.json())
-        .then((r) => {
-          console.log(r);
-          messages.push({
-            payload: r,
-            action: "api_message",
-          });
-          updateMessages([...messages]); // have to do this to trigger rerender
-        })
-        .catch((e) => {
-          console.error(e);
-        });
-      setTimeout(() => setMessageInput(""), 1);
-      return;
     } else if (messageInput.includes("/unban")) {
       event_type = "unban";
       let userName = messageInput.replace("/unban ", "").trim(); // room number
@@ -312,6 +301,30 @@ export default function Chatbox({
       if (socket) socket.close();
     };
   }, [cookies["live-site-jwt"]]);
+
+  const reportUser = (userName: string) => {
+    console.log("reporting", userName);
+    fetch(`/api/report?target_user=${userName}`, {
+      method: "GET",
+      credentials: "same-origin",
+      headers: {
+        "Content-type": "application/json",
+        Authorization: `Bearer ${cookies["live-site-jwt"]}`,
+      },
+    })
+      .then((r) => r.json())
+      .then((r) => {
+        console.log(r);
+        messages.push({
+          payload: r,
+          action: "api_message",
+        });
+        updateMessages([...messages]); // have to do this to trigger rerender
+      })
+      .catch((e) => {
+        console.error(e);
+      });
+  };
 
   //auto scroll
   React.useEffect(() => {
@@ -422,7 +435,7 @@ export default function Chatbox({
         <ChatBox className="u-border u-backgroundWhite">
           <ChatBox.List>
             {messages.map((m, i) => (
-              <ChatMessage key={i} {...m} />
+              <ChatMessage key={i} {...m} reportUser={reportUser} />
             ))}
           </ChatBox.List>
           <ChatBox.Context>
