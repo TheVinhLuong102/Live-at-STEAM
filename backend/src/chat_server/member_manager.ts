@@ -127,8 +127,8 @@ class LocalUserManager extends UserManager {
     userStateMap[username].reportCount = userStateMap[username].reportCount
       ? userStateMap[username].reportCount + 1
       : 1;
-    if (userStateMap[username].reportCount >= 5) {
-      //  magic number 5
+    if (userStateMap[username].reportCount >= 3) {
+      //  magic number 3
       await this.banUser(username).catch((e) => console.error(e));
     } else {
       await this.writeUserState(userStateMap).catch((e) => {

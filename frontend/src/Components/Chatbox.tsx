@@ -23,13 +23,22 @@ import {
   Message,
 } from "../Types/Common";
 
-import {UserMessageUI, SystemMessageUI} from "./MessageUI";
+import { UserMessageUI, SystemMessageUI } from "./MessageUI";
 import FunctionButtonGroup from "./FunctionButtonGroup";
 import { useUserData } from "../Hooks/User";
 import { useSocket } from "../Hooks/Socket";
 
-
-function ChatMessage({ message_type, payload, action }: Message) {
+function ChatMessage({
+  message_type,
+  payload,
+  action,
+  reportUser,
+}: {
+  message_type?: string;
+  payload: any;
+  action: string;
+  reportUser: (username: string) => void;
+}) {
   switch (action) {
     case "new_member_joined":
       return (
@@ -45,6 +54,7 @@ function ChatMessage({ message_type, payload, action }: Message) {
           message={payload.msg}
           messageId={payload.message_id}
           message_type={message_type as string}
+          reportUser={reportUser}
         />
       );
     case "api_message":
@@ -53,8 +63,6 @@ function ChatMessage({ message_type, payload, action }: Message) {
       return null;
   }
 }
-
-
 
 export default function Chatbox() {
   const [messages, updateMessages] = React.useState([] as Message[]);
@@ -90,7 +98,7 @@ export default function Chatbox() {
   const joinRoom = (room: Room) => {
     // TODO: Add join room logic
     console.log(room);
-  }
+  };
 
   const handleSubmit = (
     event: React.FormEvent<HTMLFormElement> | undefined
@@ -107,32 +115,6 @@ export default function Chatbox() {
     } else if (messageInput.includes("/join_room")) {
       event_type = "join_room";
       messageToSend = messageInput.replace("/join_room ", "").trim(); // room name
-    } else if (messageInput.includes("/report")) {
-      // this is handled via API
-      event_type = "report";
-      let userName = messageInput.replace("/report ", "").trim(); // room number
-      fetch(`/api/report?target_user=${userName}`, {
-        method: "GET",
-        credentials: "same-origin",
-        headers: {
-          "Content-type": "application/json",
-          Authorization: `Bearer ${userData.jwtToken}`,
-        },
-      })
-        .then((r) => r.json())
-        .then((r) => {
-          console.log(r);
-          messages.push({
-            payload: r,
-            action: "api_message",
-          });
-          updateMessages([...messages]); // have to do this to trigger rerender
-        })
-        .catch((e) => {
-          console.error(e);
-        });
-      setTimeout(() => setMessageInput(""), 1);
-      return;
     } else if (messageInput.includes("/unban")) {
       event_type = "unban";
       let userName = messageInput.replace("/unban ", "").trim(); // room number
@@ -163,9 +145,31 @@ export default function Chatbox() {
     setSendAll(false);
   };
 
+  const reportUser = (username: string) => {
+    fetch(`/api/report?target_user=${username}`, {
+      method: "GET",
+      credentials: "same-origin",
+      headers: {
+        "Content-type": "application/json",
+        Authorization: `Bearer ${userData.jwtToken}`,
+      },
+    })
+      .then((r) => r.json())
+      .then((r) => {
+        console.log(r);
+        messages.push({
+          payload: r,
+          action: "api_message",
+        });
+        updateMessages([...messages]); // have to do this to trigger rerender
+      })
+      .catch((e) => {
+        console.error(e);
+      });
+  };
+
   React.useEffect(() => {
-    if(!socket)
-      return;
+    if (!socket) return;
 
     socket.on("message", (payload: NewMessagePayload) => {
       console.log(payload);
@@ -178,9 +182,12 @@ export default function Chatbox() {
     });
 
     socket.on("delete_message", (payload: DeleteMessagePayload) => {
-      for(let i = 0; i < messages.length; ++i) {
-        if(messages[i].action == "message" &&
-        (messages[i].payload as NewMessagePayload).message_id == payload.message_id) {
+      for (let i = 0; i < messages.length; ++i) {
+        if (
+          messages[i].action == "message" &&
+          (messages[i].payload as NewMessagePayload).message_id ==
+            payload.message_id
+        ) {
           messages[i] = {
             payload: {
               response: "Message was deleted by Admin",
@@ -190,7 +197,7 @@ export default function Chatbox() {
           break;
         }
       }
-     
+
       updateMessages([...messages]);
     });
 
@@ -203,8 +210,8 @@ export default function Chatbox() {
     });
 
     return () => {
-      if(socket) socket.close();
-    }
+      if (socket) socket.close();
+    };
   }, [socket]);
 
   //auto scroll
@@ -261,7 +268,7 @@ export default function Chatbox() {
         <ChatBox className="u-border u-backgroundWhite">
           <ChatBox.List>
             {messages.map((m, i) => (
-              <ChatMessage key={i} {...m} />
+              <ChatMessage key={i} {...m} reportUser={reportUser} />
             ))}
           </ChatBox.List>
           <ChatBox.Context>
@@ -280,7 +287,9 @@ export default function Chatbox() {
               className="u-borderTopNone"
               disabledAttachButton
               disabledSendButton={false}
-              sendButtonActive={messageInput.trim() !== "" && userData.isLoggedIn}
+              sendButtonActive={
+                messageInput.trim() !== "" && userData.isLoggedIn
+              }
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setMessageInput(e.target.value)
               }
