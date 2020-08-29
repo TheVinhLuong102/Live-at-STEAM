@@ -15,6 +15,10 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: '12.16'
+    - uses: webfactory/ssh-agent@v0.4.0
+      with:
+        ssh-private-key: |
+          ${{ secrets.DESIGN_SYSTEM_DEPLOY_KEY }}
     - name: Install and run unittest
       # TODO add tests and run here
       run: |
