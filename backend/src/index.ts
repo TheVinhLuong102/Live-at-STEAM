@@ -45,14 +45,14 @@ app.post("/login", (req, res) => {
               console.error(e);
               return null;
             });
-            
+
             if(!userState)
               return res.status(500).json({ error: "Failed to add new user!" });
           }
           return res.json({
             status: 1,
             access_token: jwt.sign(
-              { user: userState.username } as DecodedUserData,
+              { username: userState.username, role: userState.role } as DecodedUserData,
               process.env.JWT_SECRET_KEY
             ),
           } as APIResponse);

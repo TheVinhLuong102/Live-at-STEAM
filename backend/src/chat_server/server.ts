@@ -21,8 +21,13 @@ type NewMessagePayload = {
   username: string;
   msg: string;
   message_id: string,
+  timestamp: number,
   type: string;
 };
+
+type DeleteMessagePayload = {
+    message_id: string
+}
 
 type JoinRoomResponse = {
   status: number;
@@ -280,6 +285,7 @@ export default class NonDistributedChatServer {
       Object.keys(socket.rooms).forEach((r) => (io = io.to(r)));
       io.emit("message", {
         message_id: uuidv4(), // generate a random ID for this message
+        timestamp: Date.now(),
         username: this.localSocketState[socket.id].username,
         msg: msg,
         type: "normal",
@@ -297,11 +303,27 @@ export default class NonDistributedChatServer {
       //send global message
       io.emit("message", {
         message_id: uuidv4(), // generate a random ID for this message
+        timestamp: Date.now(),
         username: this.localSocketState[socket.id].username,
         msg: msg,
         type: "global",
       } as NewMessagePayload);
     });
+
+    socket.on("delete_message", (message_id: string) => {
+        // only admin can delete message
+        if (
+          !this.localSocketState[socket.id].isAuthenticated ||
+          !this.localSocketState[socket.id].isAdmin
+        )
+          return;
+  
+        let io: SocketIO.Server = this.io;
+        //broadcast to all client to delete this new message
+        io.emit("delete_message", {
+          message_id: uuidv4(), // generate a random ID for this message
+        } as DeleteMessagePayload);
+      });
 
     socket.on("join_room", async (roomName: string) => {
       // only admin can join room

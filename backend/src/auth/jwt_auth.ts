@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import UserManager, { Role, UserState } from "../chat_server/member_manager";
 
 export type DecodedUserData = {
-  user: string;
+  username: string;
 };
 
 export async function verifyTokenAndGetUserState(
@@ -17,7 +17,7 @@ export async function verifyTokenAndGetUserState(
           console.error(err);
           return reject("Failed to verify JWT Token");
         }
-        UserManager.getState(userdata.user).then(async (userState) => {
+        UserManager.getState(userdata.username).then(async (userState) => {
           // if not registered
           if (!userState) {
             reject(new Error("User doens't exist"));

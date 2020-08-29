@@ -1,15 +1,33 @@
 import React from "react";
 import { useCookies } from "react-cookie";
+
+import {
+  ChatBox,
+  Composer,
+  Avatar,
+  Button,
+  Icon,
+  Dropdown,
+  Overlay,
+  Tooltip,
+  Modal,
+  BubbleChat,
+  //@ts-ignore
+} from "@gotitinc/design-system";
 //@ts-ignore
-import { ChatBox, Composer, Avatar, Button, Icon, Dropdown, Overlay, Tooltip, Modal, BubbleChat } from '@gotitinc/design-system';
-//@ts-ignore
-import classNames from 'classnames';
+import classNames from "classnames";
+import jwtDecode from "jwt-decode";
+import { UserData } from "../Types/User";
 import FunctionButtonGroup from "./FunctionButtonGroup";
 
 type NewMessagePayload = {
   username: string;
+  message_id: string;
   msg: string;
   type: string;
+};
+type DeleteMessagePayload = {
+  message_id: string;
 };
 
 type NewMemberJoined = {
@@ -24,9 +42,9 @@ function UserMessageUI({
   message,
   message_type,
 }: {
-  username: string | null | undefined,
-  message: string | null | undefined,
-  message_type: string | null | undefined,
+  username: string | null | undefined;
+  message: string | null | undefined;
+  message_type: string | null | undefined;
 }) {
   const [hover, setHover] = React.useState(false);
 
@@ -37,18 +55,18 @@ function UserMessageUI({
       onMouseLeave={() => setHover(false)}
     >
       <div className="u-flexShrink-0 u-marginRightExtraSmall">
-        <Avatar src={require('../assets/images/kid-boy.png')} />
+        <Avatar src={require("../assets/images/kid-boy.png")} />
       </div>
       <div className="u-flexGrow-1 u-text200 u-marginTopTiny u-textWordBreak">
         <span
           className={classNames(
-            'u-fontBold u-marginRightExtraSmall u-textLight',
+            "u-fontBold u-marginRightExtraSmall u-textLight"
           )}
         >
           {username}
         </span>
         <span
-          className={classNames(message_type === "global" && 'u-textWarning')}
+          className={classNames(message_type === "global" && "u-textWarning")}
         >
           {message}
         </span>
@@ -57,18 +75,21 @@ function UserMessageUI({
         <div className="u-positionAbsolute u-positionRight u-positionTop">
           <Dropdown alignRight>
             <Dropdown.Toggle className="u-textLight hover:u-textGray u-lineHeightNone u-rotate90">
-              <Icon
-                size="extraSmall"
-                name="more"
-              />
+              <Icon size="extraSmall" name="more" />
             </Dropdown.Toggle>
             <Dropdown.Container
               className="u-paddingVerticalExtraSmall"
               additionalStyles={{ minWidth: 150 }}
             >
-              <Dropdown.Item className="u-cursorPointer u-alignItemsCenter" role="button" onClick={() => {}}>
+              <Dropdown.Item
+                className="u-cursorPointer u-alignItemsCenter"
+                role="button"
+                onClick={() => {}}
+              >
                 <Icon name="flag" size="extraSmall" />
-                <span className="u-marginLeftExtraSmall u-text200 u-textNoWrap">Báo cáo vi phạm</span>
+                <span className="u-marginLeftExtraSmall u-text200 u-textNoWrap">
+                  Báo cáo vi phạm
+                </span>
               </Dropdown.Item>
             </Dropdown.Container>
           </Dropdown>
@@ -82,78 +103,67 @@ function SystemMessageUI({
   message,
   type,
 }: {
-  message: string | null | undefined,
-  type: string | null | undefined,
+  message: string | null | undefined;
+  type: string | null | undefined;
 }) {
   return (
     <div
       className={classNames(
         "u-text200 u-fontItalic u-marginBottomExtraSmall",
         type === "info" && "u-textLight",
-        type === "error" && "u-textNegative",
+        type === "error" && "u-textNegative"
       )}
     >
       {message}
     </div>
   );
-};
+}
 
-function ChatMessage({
-  username,
-  message,
-  room,
-  message_type,
-  type,
-}: {
-  username: string | null | undefined;
-  message: string | null | undefined;
-  room: string | null | undefined;
-  message_type: string | null | undefined;
-  type: string;
-}) {
-  switch (type) {
+function ChatMessage({ message_type, payload, action }: Message) {
+  switch (action) {
     case "new_member_joined":
       return (
         <SystemMessageUI
-          message={`${username} just joined the room "${room}"`}
+          message={`${payload.username} just joined the room "${payload.room}"`}
           type="info"
         />
       );
-    case "new_message":
+    case "message":
       return (
         <UserMessageUI
-          username={username}
-          message={message}
+          username={payload.username}
+          message={payload.message}
           message_type={message_type}
         />
       );
     case "api_message":
-      return (
-        <SystemMessageUI
-          message={message}
-          type="error"
-        />
-      );
+      return <SystemMessageUI message={payload.response} type="error" />;
     default:
       return null;
   }
 }
 
 type Room = {
-  name: string,
-  count: number
+  name: string;
+  count: number;
 };
 
-type ServerMessage = {
-  username?: string;
-  message?: string | null | undefined;
-  room?: string | null | undefined;
+type Message = {
   message_type?: string;
-  type: string;
+  payload: any;
+  action: string;
 };
 
-export default function Chatbox({ serverAddress }: { serverAddress: string }) {
-  const [messages, updateMessages] = React.useState([] as ServerMessage[]);
+export default function Chatbox({
+  serverAddress,
+  isLoggedIn,
+  userData,
+}: {
+  serverAddress: string;
+  isLoggedIn: boolean;
+  userData: UserData | null | undefined;
+}) {
+  const [messages, updateMessages] = React.useState([] as Message[]);
   const [messageInput, setMessageInput] = React.useState("");
   const [cookies] = useCookies(["live-site-jwt"]);
   const [isSignedIn, setIsSignedIn] = React.useState(false);
@@ -181,7 +191,9 @@ export default function Chatbox({ serverAddress }: { serverAddress: string }) {
       });
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement> | undefined) => {
+  const handleSubmit = (
+    event: React.FormEvent<HTMLFormElement> | undefined
+  ) => {
     if (event) {
       event.preventDefault();
     }
@@ -212,8 +224,8 @@ export default function Chatbox({ serverAddress }: { serverAddress: string }) {
         .then((r) => {
           console.log(r);
           messages.push({
-            message: r.response,
-            type: "api_message",
+            payload: r,
+            action: "api_message",
           });
           updateMessages([...messages]); // have to do this to trigger rerender
         })
@@ -237,8 +249,8 @@ export default function Chatbox({ serverAddress }: { serverAddress: string }) {
         .then((r) => {
           console.log(r);
           messages.push({
-            message: r.response,
-            type: "api_message",
+            payload: r,
+            action: "api_message",
           });
           updateMessages([...messages]); // have to do this to trigger rerender
         })
@@ -254,34 +266,43 @@ export default function Chatbox({ serverAddress }: { serverAddress: string }) {
 
   React.useEffect(() => {
     socket?.close();
-
+    
     const token = cookies["live-site-jwt"];
 
     socket = window.io(serverAddress, {
       query: `token=${token}`,
     }) as SocketIOClient.Socket;
 
-    if (token) {
-      setIsSignedIn(true);
-    } else {
-      setIsSignedIn(false);
-    }
-
     socket.on("message", (payload: NewMessagePayload) => {
       messages.push({
-        username: payload.username,
-        message: payload.msg,
+        payload: payload,
         message_type: payload.type,
-        type: "new_message",
+        action: "message",
       });
       updateMessages([...messages]); // have to do this to trigger rerender
     });
 
+    socket.on("delete_mesage", (payload: DeleteMessagePayload) => {
+      const newMessages = messages.map((m) => {
+        if (
+          m.action != "message" ||
+          (m.payload as NewMessagePayload).message_id != payload.message_id
+        )
+          return m;
+        return {
+          payload: {
+            response: "Message was deleted by Admin",
+          },
+          action: "api_message",
+        };
+      });
+      updateMessages([...messages]);
+    });
+
     socket.on("new_member_joined", (payload: NewMemberJoined) => {
       messages.push({
-        username: payload.username,
-        room: payload.room,
-        type: "new_member_joined",
+        payload: payload,
+        action: "new_member_joined",
       });
       updateMessages([...messages]); // have to do this to trigger rerender
     });
@@ -300,34 +321,42 @@ export default function Chatbox({ serverAddress }: { serverAddress: string }) {
 
   return (
     <React.Fragment>
-      {isSignedIn && show && (
+      {isLoggedIn && show && (
         <div className="u-positionAbsolute u-positionFull u-zIndexModal u-flex u-flexGrow-1 u-alignItemsCenter u-justifyContentCenter">
-          <div className="Modal-backDrop u-positionAbsolute u-positionFull u-backgroundBlack u-zIndex2 Show "/>
+          <div className="Modal-backDrop u-positionAbsolute u-positionFull u-backgroundBlack u-zIndex2 Show " />
           <div className="u-positionRelative u-zIndex3 u-marginMedium">
             <Modal size="small" relative>
-              <Modal.Header closeButton onHide={() => setShow(false)}/>
+              <Modal.Header closeButton onHide={() => setShow(false)} />
               <Modal.Body>
                 <div className="u-textCenter">
-                  Chỉ được chuyển phòng tối đa 1 lần trong 5 phút. Bạn chắc chắn muốn chuyển phòng chứ?
+                  Chỉ được chuyển phòng tối đa 1 lần trong 5 phút. Bạn chắc chắn
+                  muốn chuyển phòng chứ?
                 </div>
               </Modal.Body>
               <Modal.Footer>
-                <Button variant="primary" width="full">Chuyển phòng</Button>
+                <Button variant="primary" width="full">
+                  Chuyển phòng
+                </Button>
               </Modal.Footer>
             </Modal>
           </div>
         </div>
       )}
-      {!isSignedIn && (
+      {!isLoggedIn && (
         <div className="u-positionAbsolute u-positionFull u-zIndexModal u-flex u-alignItemsEnd">
-          <div className="Modal-backDrop u-positionAbsolute u-positionFull u-backgroundBlack u-zIndex2 Show "/>
-            <div className="u-positionRelative u-zIndex3 u-marginSmall u-marginBottomExtraLarge">
-              <BubbleChat
-                className="u-marginNone"
-                text="Xin chào, đăng nhập vào tài khoàn STEAM for Vietnam LMS của bạn để bất đầu chat với các thành viên khác trong phòng chat này!"
-                type="outbound"
-                avatar={() =>  <Avatar className="u-flexShrink-0 u-marginRightExtraSmall u-marginTopExtraSmall" src={require('../assets/images/nophoto.svg')} />}
-              />
+          <div className="Modal-backDrop u-positionAbsolute u-positionFull u-backgroundBlack u-zIndex2 Show " />
+          <div className="u-positionRelative u-zIndex3 u-marginSmall u-marginBottomExtraLarge">
+            <BubbleChat
+              className="u-marginNone"
+              text="Xin chào, đăng nhập vào tài khoàn STEAM for Vietnam LMS của bạn để bất đầu chat với các thành viên khác trong phòng chat này!"
+              type="outbound"
+              avatar={() => (
+                <Avatar
+                  className="u-flexShrink-0 u-marginRightExtraSmall u-marginTopExtraSmall"
+                  src={require("../assets/images/nophoto.svg")}
+                />
+              )}
+            />
           </div>
         </div>
       )}
@@ -349,18 +378,22 @@ export default function Chatbox({ serverAddress }: { serverAddress: string }) {
           </div>
           <div className="u-flexShrink-0 u-flex u-alignItemsCenter u-justifyContentCenter">
             <Dropdown alignRight>
-              <Dropdown.Button onlyIcon variant="positive_outline" className="u-roundedCircle u-marginRightExtraSmall is-disabled">
-                <Button.Icon><Icon name="raiseHand"/></Button.Icon>
+              <Dropdown.Button
+                onlyIcon
+                variant="positive_outline"
+                className="u-roundedCircle u-marginRightExtraSmall is-disabled"
+              >
+                <Button.Icon>
+                  <Icon name="raiseHand" />
+                </Button.Icon>
               </Dropdown.Button>
               <Dropdown.Container className="u-overflowHidden u-borderNone">
-                <div 
-                  className="u-paddingExtraSmall u-backgroundBlack u-textWhite"
-                >
+                <div className="u-paddingExtraSmall u-backgroundBlack u-textWhite">
                   Chức năng giơ tay sẽ được cập nhật trong các phiên bản sau!
                 </div>
               </Dropdown.Container>
             </Dropdown>
-  
+
             <Overlay.Trigger
               key="bottom"
               placement="bottom"
@@ -372,8 +405,14 @@ export default function Chatbox({ serverAddress }: { serverAddress: string }) {
                 </Tooltip>
               )}
             >
-              <Button onlyIcon variant="primary_outline" className="u-roundedCircle">
-                <Button.Icon><Icon name="arrowForward"/></Button.Icon>
+              <Button
+                onlyIcon
+                variant="primary_outline"
+                className="u-roundedCircle"
+              >
+                <Button.Icon>
+                  <Icon name="arrowForward" />
+                </Button.Icon>
               </Button>
             </Overlay.Trigger>
           </div>
@@ -382,14 +421,7 @@ export default function Chatbox({ serverAddress }: { serverAddress: string }) {
         <ChatBox className="u-border u-backgroundWhite">
           <ChatBox.List>
             {messages.map((m, i) => (
-              <ChatMessage
-                key={i}
-                username={m.username}
-                message={m.message}
-                room={m.room}
-                message_type={m.message_type}
-                type={m.type}
-              />
+              <ChatMessage key={i} {...m} />
             ))}
           </ChatBox.List>
           <ChatBox.Context>
@@ -397,19 +429,25 @@ export default function Chatbox({ serverAddress }: { serverAddress: string }) {
               disabledAttachButton
               disabledSendButton={false}
               sendButtonActive={!!messageInput && isSignedIn}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMessageInput(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setMessageInput(e.target.value)
+              }
               inputProps={{
                 value: messageInput,
                 maxRows: 4,
                 placeholder: "Tin nhắn cho lớp ...",
                 disabled: !isSignedIn,
                 onKeyDown: async (e: React.KeyboardEvent<HTMLInputElement>) => {
-                  const keyCode = (e.keyCode || e.which);
-                  if (keyCode === 13 && !e.shiftKey && messageInput.trim() !== '') {
+                  const keyCode = e.keyCode || e.which;
+                  if (
+                    keyCode === 13 &&
+                    !e.shiftKey &&
+                    messageInput.trim() !== ""
+                  ) {
                     e.preventDefault();
                     handleSubmit(undefined);
                   }
-                }
+                },
               }}
               sendButtonProps={{
                 onClick: handleSubmit,

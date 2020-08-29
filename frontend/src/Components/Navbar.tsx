@@ -1,9 +1,10 @@
 import React from "react";
 //@ts-ignore
 import { Header, Logo, SafeAnchor,Badge } from '@gotitinc/design-system';
+import {UserData} from '../Types/User';
 import Login from "./Login";
 
-export default function NavBar() {
+export default function NavBar({isLoggedIn, userData} : {isLoggedIn: boolean, userData: UserData | null | undefined}) {
   return (
     <Header fullWidth>
       <Header.Brand>
@@ -16,7 +17,7 @@ export default function NavBar() {
           <div><Badge variant="primary_subtle">256 người đang xem </Badge></div>
         </Header.Left>
         <Header.Right>
-          <Login />
+          <Login isLoggedIn={isLoggedIn} userData={userData}/>
         </Header.Right>
       </Header.Main>
     </Header>
