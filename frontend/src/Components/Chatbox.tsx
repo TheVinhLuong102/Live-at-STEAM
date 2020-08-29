@@ -266,7 +266,7 @@ export default function Chatbox({
 
   React.useEffect(() => {
     socket?.close();
-    
+
     const token = cookies["live-site-jwt"];
 
     socket = window.io(serverAddress, {
@@ -428,7 +428,7 @@ export default function Chatbox({
             <Composer
               disabledAttachButton
               disabledSendButton={false}
-              sendButtonActive={!!messageInput && isSignedIn}
+              sendButtonActive={!!messageInput && isLoggedIn}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setMessageInput(e.target.value)
               }
@@ -436,7 +436,7 @@ export default function Chatbox({
                 value: messageInput,
                 maxRows: 4,
                 placeholder: "Tin nhắn cho lớp ...",
-                disabled: !isSignedIn,
+                disabled: !isLoggedIn,
                 onKeyDown: async (e: React.KeyboardEvent<HTMLInputElement>) => {
                   const keyCode = e.keyCode || e.which;
                   if (
