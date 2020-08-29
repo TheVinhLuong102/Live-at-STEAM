@@ -201,6 +201,17 @@ export default function Chatbox() {
       updateMessages([...messages]);
     });
 
+    socket.on("ban_applied", () => {
+      messages.push({
+        payload: {
+          response: "You have been banned",
+        },
+        action: "api_message"
+      });
+
+      updateMessages([...messages]);
+    });
+
     socket.on("new_member_joined", (payload: NewMemberJoined) => {
       messages.push({
         payload: payload,

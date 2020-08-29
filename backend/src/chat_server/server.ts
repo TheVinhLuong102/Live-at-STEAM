@@ -26,7 +26,7 @@ type NewMessagePayload = {
 };
 
 type DeleteMessagePayload = {
-    message_id: string
+  message_id: string
 }
 
 type JoinRoomResponse = {
@@ -275,11 +275,13 @@ export default class NonDistributedChatServer {
   setupSocketEvents(socket: SocketIO.Socket) {
     // "thread" safe
     socket.on("message", async (msg: string) => {
-      if (
-        !this.localSocketState[socket.id].isAuthenticated ||
-        this.localSocketState[socket.id].isBanned
-      )
+      if (!this.localSocketState[socket.id].isAuthenticated)
         return;
+
+      if (this.localSocketState[socket.id].isBanned) {
+        this.io.to(socket.id).emit("ban_applied");
+        return;
+      }
 
       let io: SocketIO.Namespace | SocketIO.Server = this.io;
       Object.keys(socket.rooms).forEach((r) => (io = io.to(r)));

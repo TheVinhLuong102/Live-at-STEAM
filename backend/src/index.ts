@@ -4,7 +4,7 @@ import ChatServer from "./chat_server/server";
 import jwt from "jsonwebtoken";
 import AuthenticationServer from "./auth/authentication_server";
 import cookieParser from "cookie-parser";
-import UserManager, { Role, UserState } from "./chat_server/member_manager";
+import UserManager, { Role, UserStatus } from "./chat_server/member_manager";
 import {
   jwt_express_auth,
   check_admin,
@@ -52,7 +52,7 @@ app.post("/login", (req, res) => {
           return res.json({
             status: 1,
             access_token: jwt.sign(
-              { username: userState.username, role: userState.role } as DecodedUserData,
+              { username: userState.username, role: userState.role, isBanned: userState.status === UserStatus.BANNED } as DecodedUserData,
               process.env.JWT_SECRET_KEY
             ),
           } as APIResponse);
