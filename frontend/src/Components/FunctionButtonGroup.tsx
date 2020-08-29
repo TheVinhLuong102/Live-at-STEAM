@@ -4,6 +4,8 @@ import { Button, Icon, Dropdown, Overlay, Tooltip, Modal } from '@gotitinc/desig
 import {
   Room,
 } from "../Types/Common";
+import { UserData } from "../Types/User";
+import { useSocket } from "../Hooks/Socket";
 
 export default function FunctionButtonGroup({
   isSignedIn,
@@ -11,18 +13,21 @@ export default function FunctionButtonGroup({
   loadRooms,
   rooms,
   joinRoom,
+  userData,
 } : {
   isSignedIn: boolean,
   isAdmin: boolean,
   loadRooms: Function,
-  rooms: Array<Room>,
+  rooms: Room[],
   joinRoom: Function,
+  userData: UserData
 }) {
   const [show, setShow] = React.useState(false);
-
+  const socket = useSocket();
   const onSwitchRoomConfirm = () => {
     // TODO: Start timer after successful room change
     console.log('confirmed');
+    socket?.emit("join_random_room");
   }
 
   return (
