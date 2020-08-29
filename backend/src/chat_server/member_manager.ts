@@ -85,7 +85,7 @@ class LocalUserManager extends UserManager {
     return JSON.parse(f.readFileSync(this.storage_path, "utf8"));
   }
 
-  async getState(username: string): Promise<UserState | null> {
+  async getState(username: string): Promise<UserState|null> {
     let userStateMap = await this.loadUserState().catch((e) => {
       console.error(e);
       throw "Failed to load UserStateMap";

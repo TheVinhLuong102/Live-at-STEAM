@@ -39,13 +39,15 @@ app.post("/login", (req, res) => {
         async (userState) => {
           // if not registered
           if (!userState) {
-            const res = await UserManager.addUser(
+            userState = await UserManager.addUser(
               response.preferred_username
             ).catch((e) => {
               console.error(e);
-              return res.status(500).json({ error: "Failed to add new user!" });
+              return null;
             });
-            userState = res;
+            
+            if(!userState)
+              return res.status(500).json({ error: "Failed to add new user!" });
           }
           return res.json({
             status: 1,
