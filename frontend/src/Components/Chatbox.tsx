@@ -27,11 +27,6 @@ import {UserMessageUI, SystemMessageUI} from "./MessageUI";
 import FunctionButtonGroup from "./FunctionButtonGroup";
 import { useUserData } from "../Hooks/User";
 import { useSocket } from "../Hooks/Socket";
-<<<<<<< HEAD
-import {NewMessagePayload, DeleteMessagePayload, NewMemberJoined} from "../Types/Payload";
-=======
-
->>>>>>> c4ec7c52dd3e78f0c02f54396042fb0215b4b4ab
 
 function ChatMessage({ message_type, payload, action }: Message) {
   switch (action) {
