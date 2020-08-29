@@ -1,40 +1,33 @@
 import React from "react";
 import { useCookies } from "react-cookie";
-
 import {
   ChatBox,
   Composer,
   Avatar,
+  Form,
   Button,
   Icon,
   Dropdown,
-  Overlay,
-  Tooltip,
-  Modal,
   BubbleChat,
+  Separator,
+  Badge,
   //@ts-ignore
 } from "@gotitinc/design-system";
 //@ts-ignore
+
+import {
+  NewMessagePayload,
+  DeleteMessagePayload,
+  NewMemberJoined,
+  Room,
+  Message,
+} from "../Types/Common";
 
 import {UserMessageUI, SystemMessageUI} from "./MessageUI";
 import FunctionButtonGroup from "./FunctionButtonGroup";
 import { useUserData } from "../Hooks/User";
 import { useSocket } from "../Hooks/Socket";
 
-type NewMessagePayload = {
-  username: string;
-  message_id: string;
-  msg: string;
-  type: string;
-};
-type DeleteMessagePayload = {
-  message_id: string;
-};
-
-type NewMemberJoined = {
-  username: string;
-  room: string;
-};
 
 function ChatMessage({ message_type, payload, action }: Message) {
   switch (action) {
@@ -61,27 +54,20 @@ function ChatMessage({ message_type, payload, action }: Message) {
   }
 }
 
-type Room = {
-  name: string;
-  count: number;
-};
 
-type Message = {
-  message_type?: string;
-  payload: any;
-  action: string;
-};
 
 export default function Chatbox() {
   const [messages, updateMessages] = React.useState([] as Message[]);
   const [messageInput, setMessageInput] = React.useState("");
   const [rooms, setRooms] = React.useState([] as Room[]);
+  const [sendAll, setSendAll] = React.useState(false);
   const [show, setShow] = React.useState(false);
   const socket = useSocket();
   const userData = useUserData();
 
-  const loadRooms = (event: any) => {
-    event.preventDefault();
+  const isAdmin = userData?.isLoggedIn && userData?.role === 0;
+
+  const loadRooms = () => {
     fetch(`/api/getRooms`, {
       method: "GET",
       credentials: "same-origin",
@@ -101,20 +87,23 @@ export default function Chatbox() {
       });
   };
 
+  const joinRoom = (room: Room) => {
+    // TODO: Add join room logic
+    console.log(room);
+  }
+
   const handleSubmit = (
     event: React.FormEvent<HTMLFormElement> | undefined
   ) => {
     if (event) {
       event.preventDefault();
     }
-    console.log(messageInput);
-    let messageToSend = messageInput;
+    let messageToSend = messageInput.trim();
     let event_type = "message";
 
     //hacky command handling
-    if (messageInput.includes("/global")) {
+    if (sendAll) {
       event_type = "global_message";
-      messageToSend = messageInput.replace("/global ", "").trim();
     } else if (messageInput.includes("/join_room")) {
       event_type = "join_room";
       messageToSend = messageInput.replace("/join_room ", "").trim(); // room name
@@ -171,6 +160,7 @@ export default function Chatbox() {
     }
     socket?.emit(event_type, messageToSend);
     setTimeout(() => setMessageInput(""), 1);
+    setSendAll(false);
   };
 
   React.useEffect(() => {
@@ -226,27 +216,6 @@ export default function Chatbox() {
 
   return (
     <React.Fragment>
-      {userData.isLoggedIn && show && (
-        <div className="u-positionAbsolute u-positionFull u-zIndexModal u-flex u-flexGrow-1 u-alignItemsCenter u-justifyContentCenter">
-          <div className="Modal-backDrop u-positionAbsolute u-positionFull u-backgroundBlack u-zIndex2 Show " />
-          <div className="u-positionRelative u-zIndex3 u-marginMedium">
-            <Modal size="small" relative>
-              <Modal.Header closeButton onHide={() => setShow(false)} />
-              <Modal.Body>
-                <div className="u-textCenter">
-                  Chỉ được chuyển phòng tối đa 1 lần trong 5 phút. Bạn chắc chắn
-                  muốn chuyển phòng chứ?
-                </div>
-              </Modal.Body>
-              <Modal.Footer>
-                <Button variant="primary" width="full">
-                  Chuyển phòng
-                </Button>
-              </Modal.Footer>
-            </Modal>
-          </div>
-        </div>
-      )}
       {!userData.isLoggedIn && (
         <div className="u-positionAbsolute u-positionFull u-zIndexModal u-flex u-alignItemsEnd">
           <div className="Modal-backDrop u-positionAbsolute u-positionFull u-backgroundBlack u-zIndex2 Show " />
@@ -281,47 +250,13 @@ export default function Chatbox() {
               <span className="u-fontMedium">1</span>
             </div>
           </div>
-          <div className="u-flexShrink-0 u-flex u-alignItemsCenter u-justifyContentCenter">
-            <Dropdown alignRight>
-              <Dropdown.Button
-                onlyIcon
-                variant="positive_outline"
-                className="u-roundedCircle u-marginRightExtraSmall is-disabled"
-              >
-                <Button.Icon>
-                  <Icon name="raiseHand" />
-                </Button.Icon>
-              </Dropdown.Button>
-              <Dropdown.Container className="u-overflowHidden u-borderNone">
-                <div className="u-paddingExtraSmall u-backgroundBlack u-textWhite">
-                  Chức năng giơ tay sẽ được cập nhật trong các phiên bản sau!
-                </div>
-              </Dropdown.Container>
-            </Dropdown>
-
-            <Overlay.Trigger
-              key="bottom"
-              placement="bottom"
-              hoverOverlay
-              delay={{ show: 0, hide: 100 }}
-              overlay={(props: Object) => (
-                <Tooltip id="tooltip-change-room" {...props}>
-                  Chuyển sang phòng chat khác
-                </Tooltip>
-              )}
-            >
-              <Button
-                onlyIcon
-                variant="primary_outline"
-                className="u-roundedCircle"
-              >
-                <Button.Icon>
-                  <Icon name="arrowForward" />
-                </Button.Icon>
-              </Button>
-            </Overlay.Trigger>
-          </div>
-          {/* <FunctionButtonGroup /> */}
+          <FunctionButtonGroup
+            isSignedIn={userData.isLoggedIn}
+            loadRooms={loadRooms}
+            rooms={rooms}
+            joinRoom={joinRoom}
+            isAdmin={isAdmin}
+          />
         </div>
         <ChatBox className="u-border u-backgroundWhite">
           <ChatBox.List>
@@ -330,10 +265,22 @@ export default function Chatbox() {
             ))}
           </ChatBox.List>
           <ChatBox.Context>
+            <Separator variant="lighter" />
+            {isAdmin && (
+              <div className="u-paddingExtraSmall">
+                <Form.Check
+                  id="send_all"
+                  checked={sendAll}
+                  label="Gửi cho tất cả"
+                  onChange={() => setSendAll(!sendAll)}
+                />
+              </div>
+            )}
             <Composer
+              className="u-borderTopNone"
               disabledAttachButton
               disabledSendButton={false}
-              sendButtonActive={!!messageInput && userData.isLoggedIn}
+              sendButtonActive={messageInput.trim() !== "" && userData.isLoggedIn}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setMessageInput(e.target.value)
               }
