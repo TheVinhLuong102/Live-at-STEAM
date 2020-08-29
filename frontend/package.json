@@ -49,7 +49,7 @@
     ]
   },
   "devDependencies": {
-    "http-proxy-middleware": "1.0.0",
+    "http-proxy-middleware": "1.0.5",
     "@storybook/addon-actions": "^6.0.18",
     "@storybook/addon-essentials": "^6.0.18",
     "@storybook/addon-links": "^6.0.18",

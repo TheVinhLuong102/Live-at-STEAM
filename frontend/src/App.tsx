@@ -1,4 +1,5 @@
 import React from "react";
+import { useCookies } from "react-cookie";
 //@ts-ignore
 import { PageLayout } from '@gotitinc/design-system';
 import NavBar from "./Components/Navbar";
