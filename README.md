@@ -1,6 +1,17 @@
 # Live-STEAM
 
-## Deployment instructions:
+## Auto deployment instructions:
+
+Currently, our app is configured to deploy to production with every changes on master
+1. Build a docker package and host it on github registry.
+2. SSH to the droplet and pull the package from github & run it on port 3600
+3. There is a Nginx server that proxy the requests to port 3600
+
+
+See the `.github/workflows/deploy.yml` for the build steps and `Dockerfile` for docker build steps
+
+
+## Manual deployment instructions (unused):
 
 1. Install docker-machine following [this guide](https://docs.docker.com/machine/install-machine/)
 2. Copy docker machine config to your laptop

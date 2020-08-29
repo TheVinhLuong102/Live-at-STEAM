@@ -16,13 +16,12 @@ jobs:
       with:
         node-version: '12.16'
     - name: Install and run unittest
+      # TODO add tests and run here
       run: |
-        cd backend/
+        cd frontend/
         npm install
-        npm test
-        cd ../frontend
+        cd ../backend/
         npm install
-        npm test
       env:
         CI: true
     - name: Publish to Github Packages Registry
