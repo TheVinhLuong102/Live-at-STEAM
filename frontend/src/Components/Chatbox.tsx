@@ -224,7 +224,7 @@ export default function Chatbox() {
     <React.Fragment>
       {!userData.isLoggedIn && (
         <div className="u-positionAbsolute u-positionFull u-zIndexModal u-flex u-alignItemsEnd">
-          <div className="Modal-backDrop u-positionAbsolute u-positionFull u-backgroundBlack u-zIndex2 Show u-marginHorizontalExtraSmall" />
+          <div className="Modal-backDrop u-positionAbsolute u-positionFull u-backgroundBlack u-zIndex2 Show" />
           <div className="u-positionRelative u-zIndex3 u-marginSmall u-marginBottomExtraLarge">
             <BubbleChat
               className="u-marginNone"

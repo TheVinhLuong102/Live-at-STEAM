@@ -40,7 +40,7 @@ export default function FunctionButtonGroup({
     <React.Fragment>
       {isSignedIn && show && (
         <div className="u-positionAbsolute u-positionFull u-zIndexModal u-flex u-flexGrow-1 u-alignItemsCenter u-justifyContentCenter">
-          <div className="Modal-backDrop u-positionAbsolute u-positionFull u-backgroundBlack u-zIndex2 Show u-marginHorizontalExtraSmall" />
+          <div className="Modal-backDrop u-positionAbsolute u-positionFull u-backgroundBlack u-zIndex2 Show" />
           <div className="u-positionRelative u-zIndex3 u-marginMedium">
             <Modal size="small" relative>
               <Modal.Header closeButton onHide={() => setShow(false)} />

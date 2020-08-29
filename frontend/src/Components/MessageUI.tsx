@@ -12,6 +12,7 @@ import classNames from "classnames";
 import { useUserData } from "../Hooks/User";
 import { useSocket } from "../Hooks/Socket";
 import DropdownWrapper from './DropdownWrapper';
+import { getShortName, chooseColorByString } from '../Utils/Common';
 
 export function UserMessageUI({
     username,
@@ -49,7 +50,14 @@ export function UserMessageUI({
         onMouseLeave={() => setHover(false)}
       >
         <div className="u-flexShrink-0 u-marginRightExtraSmall">
-          <Avatar src={require("../assets/images/kid-boy.png")} />
+          {/* <Avatar src={require("../assets/images/kid-boy.png")} /> */}
+          <Avatar
+            className={classNames(
+              "u-text200 u-textUppercase",
+              chooseColorByString(username),
+            )}
+            text={getShortName(username)}
+          />
         </div>
         <div className="u-flexGrow-1 u-text200 u-marginTopTiny u-textWordBreak">
           <span
@@ -109,7 +117,7 @@ export function UserMessageUI({
                           setShowDropdown(false);
                         }}
                       >
-                        <Icon name="closeCircleOutline" size="extraSmall" />
+                        <Icon name="trash" size="extraSmall" />
                         <span className="u-marginLeftExtraSmall u-text200 u-textNoWrap">
                           Xoá tin nhắn
                         </span>
