@@ -1,7 +1,7 @@
 import React from "react";
 import { useCookies } from "react-cookie";
 //@ts-ignore
-import { ChatBox, Composer, Avatar, Button, Icon, Dropdown, Overlay, Tooltip, Modal, BubbleChat } from '@gotitinc/design-system';
+import { ChatBox, Composer, Avatar, Form, Icon, Dropdown, BubbleChat } from '@gotitinc/design-system';
 //@ts-ignore
 import classNames from 'classnames';
 import FunctionButtonGroup from "./FunctionButtonGroup";
@@ -158,6 +158,7 @@ export default function Chatbox({ serverAddress }: { serverAddress: string }) {
   const [cookies] = useCookies(["live-site-jwt"]);
   const [isSignedIn, setIsSignedIn] = React.useState(false);
   const [rooms, setRooms] = React.useState([] as Room[]);
+  const [sendAll, setSendAll] = React.useState(false);
 
   const loadRooms = (event: any) => {
     event.preventDefault();
@@ -185,13 +186,12 @@ export default function Chatbox({ serverAddress }: { serverAddress: string }) {
       event.preventDefault();
     }
     console.log(messageInput);
-    let messageToSend = messageInput;
+    let messageToSend = messageInput.trim();
     let event_type = "message";
 
     //hacky command handling
-    if (messageInput.includes("/global")) {
+    if (sendAll) {
       event_type = "global_message";
-      messageToSend = messageInput.replace("/global ", "").trim();
     } else if (messageInput.includes("/join_room")) {
       event_type = "join_room";
       messageToSend = messageInput.replace("/join_room ", "").trim(); // room name
@@ -249,6 +249,7 @@ export default function Chatbox({ serverAddress }: { serverAddress: string }) {
 
     socket?.emit(event_type, messageToSend);
     setTimeout(() => setMessageInput(""), 1);
+    setSendAll(false);
   };
 
   React.useEffect(() => {
@@ -347,7 +348,7 @@ export default function Chatbox({ serverAddress }: { serverAddress: string }) {
             <Composer
               disabledAttachButton
               disabledSendButton={false}
-              sendButtonActive={!!messageInput && isSignedIn}
+              sendButtonActive={messageInput.trim() !== '' && isSignedIn}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMessageInput(e.target.value)}
               inputProps={{
                 value: messageInput,
@@ -366,6 +367,7 @@ export default function Chatbox({ serverAddress }: { serverAddress: string }) {
                 onClick: handleSubmit,
               }}
             />
+            <Form.Check id="send_all" checked={sendAll} label="Send All" onChange={() => setSendAll(!sendAll)} />
           </ChatBox.Context>
         </ChatBox>
       </div>
