@@ -2,14 +2,15 @@ import React, { Component } from "react";
 import { useCookies } from "react-cookie";
 //@ts-ignore
 import { Form, Button, Dropdown, Icon } from '@gotitinc/design-system';
-import {UserData} from '../Types/User';
+import { useUserData } from "../Hooks/User";
 
-export default function Login({isLoggedIn, userData} : {isLoggedIn: boolean, userData: UserData | null | undefined}) {
+export default function Login() {
   const [loggedIn, setLoggedIn] = React.useState(false);
   const [hasError, setHasError] = React.useState(false);
   const [email, updateEmail] = React.useState("");
   const [password, updatePassword] = React.useState("");
   const [cookies, setCookie, removeCookie] = useCookies(["live-site-jwt"]);
+  const userData = useUserData();
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -47,7 +48,7 @@ export default function Login({isLoggedIn, userData} : {isLoggedIn: boolean, use
 
 
 
-  return isLoggedIn ? (
+  return userData.isLoggedIn ? (
     <React.Fragment>
       <div className="u-marginRightExtraSmall">{userData?.username}</div>
       <Dropdown alignRight id="profile">
