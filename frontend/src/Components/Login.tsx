@@ -2,8 +2,9 @@ import React, { Component } from "react";
 import { useCookies } from "react-cookie";
 //@ts-ignore
 import { Form, Button, Dropdown, Icon } from '@gotitinc/design-system';
+import {UserData} from '../Types/User';
 
-export default function Login() {
+export default function Login({isLoggedIn, userData} : {isLoggedIn: boolean, userData: UserData | null | undefined}) {
   const [loggedIn, setLoggedIn] = React.useState(false);
   const [hasError, setHasError] = React.useState(false);
   const [email, updateEmail] = React.useState("");
@@ -32,9 +33,7 @@ export default function Login() {
         if (data.status == 1) {
           // Save JWT to cookie
           setCookie("live-site-jwt", data.access_token, { path: "/" });
-
           setHasError(false);
-          setLoggedIn(true);
         } else {
           setHasError(true);
         }
@@ -44,24 +43,13 @@ export default function Login() {
 
   const logOut = () => {
     removeCookie("live-site-jwt", { path: "/" });
-
-    setLoggedIn(false);
   };
 
-  React.useEffect(() => {
-    const token = cookies["live-site-jwt"];
 
-    if (token) {
-      setLoggedIn(true);
-    } else {
-      setLoggedIn(false);
-    }
 
-  }, [cookies["live-site-jwt"]])
-
-  return loggedIn ? (
+  return isLoggedIn ? (
     <React.Fragment>
-      <div className="u-marginRightExtraSmall">Username</div>
+      <div className="u-marginRightExtraSmall">{userData?.username}</div>
       <Dropdown alignRight id="profile">
         <Dropdown.Toggle className="u-textLight u-lineHeightNone">
           <Icon name="contact" size="medium" />

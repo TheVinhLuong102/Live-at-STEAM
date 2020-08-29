@@ -1,13 +1,13 @@
 import axios from "axios";
 import querystring from "querystring";
-import jwt from 'jsonwebtoken';
+import jwt from "jsonwebtoken";
 
 type LMS_DECODED_TOKEN = {
-  preferred_username?: string
-}
+  preferred_username?: string;
+};
 
 export default class AuthenticationServer {
-  async login(username: string, password: string): Promise < LMS_DECODED_TOKEN > {
+  async login(username: string, password: string): Promise<LMS_DECODED_TOKEN> {
     const apiBaseUrl = process.env.LMS_BASE_URL;
 
     const payload = {
@@ -16,16 +16,17 @@ export default class AuthenticationServer {
       grant_type: "password",
       client_id: process.env.CLIENT_ID,
       client_secret: process.env.CLIENT_SECRET,
-      token_type: "jwt"
+      token_type: "jwt",
     };
     const query = querystring.stringify(payload);
 
     return new Promise((resolve, reject) => {
-      axios.post(
-          apiBaseUrl + `/oauth2/access_token/`,
-          query,
-        ).then((response) => {
-          const user = (jwt.decode(response.data.access_token) as LMS_DECODED_TOKEN)?.preferred_username;
+      axios
+        .post(apiBaseUrl + `/oauth2/access_token/`, query)
+        .then((response) => {
+          const user = (jwt.decode(
+            response.data.access_token
+          ) as LMS_DECODED_TOKEN)?.preferred_username;
           if (!user) {
             return reject("Invalid JWT token received");
           }
