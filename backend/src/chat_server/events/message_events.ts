@@ -5,18 +5,18 @@ import { isBanned, isAdmin, getRole } from "../utils";
 type NewMessagePayload = {
   username: string;
   role: Role,
-  msg: string;
-  message_id: string;
+  message: string;
+  messageId: string;
   timestamp: number;
   type: string;
 };
 
 type DeleteMessagePayload = {
-  message_id: string;
+  messageId: string;
 };
 
 export function registerMessageEvents(socket: SocketIO.Socket) {
-  socket.on("message", async (msg: string) => {
+  socket.on("message", async (message: string) => {
     if (!this.localSocketState[socket.id].isAuthenticated) return;
 
     try {
@@ -28,11 +28,11 @@ export function registerMessageEvents(socket: SocketIO.Socket) {
       let io: SocketIO.Namespace | SocketIO.Server = this.io;
       Object.keys(socket.rooms).forEach((r) => (io = io.to(r)));
       io.emit("message", {
-        message_id: uuidv4(), // generate a random ID for this message
+        messageId: uuidv4(), // generate a random ID for this message
         role: role,
         timestamp: Date.now(),
         username: this.localSocketState[socket.id].username,
-        msg: msg,
+        message: message,
         type: "normal",
       } as NewMessagePayload);
     } catch (e) {
@@ -40,7 +40,7 @@ export function registerMessageEvents(socket: SocketIO.Socket) {
     }
   });
 
-  socket.on("global_message", async (msg: string) => {
+  socket.on("global_message", async (message: string) => {
     if (!this.localSocketState[socket.id].isAuthenticated) return;
 
     try {
@@ -51,11 +51,11 @@ export function registerMessageEvents(socket: SocketIO.Socket) {
       let io: SocketIO.Server = this.io;
       //send global message
       io.emit("message", {
-        message_id: uuidv4(), // generate a random ID for this message
+        messageId: uuidv4(), // generate a random ID for this message
         role: role,
         timestamp: Date.now(),
         username: this.localSocketState[socket.id].username,
-        msg: msg,
+        message: message,
         type: "global",
       } as NewMessagePayload);
     } catch (e) {
@@ -63,7 +63,7 @@ export function registerMessageEvents(socket: SocketIO.Socket) {
     }
   });
 
-  socket.on("delete_message", async (message_id: string) => {
+  socket.on("delete_message", async (messageId: string) => {
     // only admin can delete message
     if (!this.localSocketState[socket.id].isAuthenticated) return;
 
@@ -73,7 +73,7 @@ export function registerMessageEvents(socket: SocketIO.Socket) {
 
       //broadcast to all client to delete this new message
       this.io.emit("delete_message", {
-        message_id: message_id,
+        messageId: messageId,
       } as DeleteMessagePayload);
     } catch (e) {
       console.error(e);

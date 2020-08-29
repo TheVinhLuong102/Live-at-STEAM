@@ -120,8 +120,8 @@ export default function Chatbox() {
       for (let i = 0; i < messages.length; ++i) {
         if (
           messages[i].action === "message" &&
-          (messages[i].payload as NewMessagePayload).message_id ===
-            payload.message_id
+          (messages[i].payload as NewMessagePayload).messageId ===
+            payload.messageId
         ) {
           messages[i] = {
             payload: {
@@ -132,7 +132,7 @@ export default function Chatbox() {
           break;
         }
       }
-
+      
       updateMessages([...messages]);
     });
 

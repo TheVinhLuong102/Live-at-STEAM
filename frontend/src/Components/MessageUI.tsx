@@ -19,8 +19,8 @@ import {NewMessagePayload} from "../Types/Common";
 export function UserMessageUI({
   username,
   role,
-  msg,
-  message_id,
+  message,
+  messageId,
   type,
   socket,
 }: {
@@ -30,7 +30,7 @@ export function UserMessageUI({
   const userData = useUserData();
 
   const handleDeleteMessage = () => {
-    socket?.emit("delete_message", message_id);
+    socket?.emit("delete_message", messageId);
   };
 
   const handleReportUser = (username: string) => {
@@ -80,7 +80,7 @@ export function UserMessageUI({
               </a>
             )}
           >
-            {msg}
+            {message}
           </Linkify>
         </span>
       </div>
