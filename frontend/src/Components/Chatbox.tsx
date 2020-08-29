@@ -21,6 +21,7 @@ import {
   NewMemberJoined,
   Room,
   Message,
+  JoinRoomResponse,
 } from "../Types/Common";
 
 import {UserMessageUI, SystemMessageUI} from "./MessageUI";
@@ -46,8 +47,11 @@ function ChatMessage({ message_type, payload, action }: Message) {
           message_type={message_type as string}
         />
       );
-    case "api_message":
+    case "api_message_highlight":
       return <SystemMessageUI message={payload.response} type="error" />;
+
+    case "api_message":
+        return <SystemMessageUI message={payload.response} type="info" />;
     default:
       return null;
   }
@@ -60,7 +64,6 @@ export default function Chatbox() {
   const [messageInput, setMessageInput] = React.useState("");
   const [rooms, setRooms] = React.useState([] as Room[]);
   const [sendAll, setSendAll] = React.useState(false);
-  const [show, setShow] = React.useState(false);
   const socket = useSocket();
   const userData = useUserData();
 
@@ -184,7 +187,7 @@ export default function Chatbox() {
             payload: {
               response: "Message was deleted by Admin",
             },
-            action: "api_message",
+            action: "api_message_highlight",
           };
           break;
         }
@@ -197,6 +200,14 @@ export default function Chatbox() {
       messages.push({
         payload: payload,
         action: "new_member_joined",
+      });
+      updateMessages([...messages]); // have to do this to trigger rerender
+    });
+
+    socket.on("join_room_resp", (payload: JoinRoomResponse) => {
+      messages.push({
+        payload: payload,
+        action: "api_message",
       });
       updateMessages([...messages]); // have to do this to trigger rerender
     });
@@ -255,6 +266,7 @@ export default function Chatbox() {
             rooms={rooms}
             joinRoom={joinRoom}
             isAdmin={isAdmin}
+            userData={userData}
           />
         </div>
         <ChatBox className="u-border u-backgroundWhite">
