@@ -29,7 +29,7 @@ export function registerRoomEvents(socket: SocketIO.Socket) {
         status: -1,
         username: this.localSocketState[socket.id].username,
         room: roomName,
-        response: `Failed to join room: ${roomName}, becasue the room doesn't exist`,
+        response: `Không thể tham gia phòng: "${roomName}". Phòng không tồn tại.`,
       } as JoinRoomResponse);
       return;
     }
@@ -45,7 +45,7 @@ export function registerRoomEvents(socket: SocketIO.Socket) {
           status: 1,
           username: this.localSocketState[socket.id].username,
           room: roomName,
-          response: `Gia nhập phòng ${roomName} thành công`,
+          response: `Gia nhập phòng "${roomName}" thành công!`,
         } as JoinRoomResponse);
       })
       .catch((e) => {
@@ -54,7 +54,7 @@ export function registerRoomEvents(socket: SocketIO.Socket) {
           status: -1,
           username: this.localSocketState[socket.id].username,
           room: roomName,
-          response: "Có lỗi xảy ra khi gia nhập phòng: " + roomName,
+          response: `Có lỗi xảy ra khi gia nhập phòng "${roomName}".`,
         } as JoinRoomResponse);
       });
   });
@@ -80,7 +80,7 @@ export function registerRoomEvents(socket: SocketIO.Socket) {
         Config.SWITCH_ROOM_DELAY - Math.round(Date.now() / 1000 - lastAttempt);
       this.io.to(socket.id).emit("join_room_resp", {
         status: -1,
-        response: `Bạn phải đợi thêm ${timeLeft} giây để đổi phòng`,
+        response: `Bạn phải đợi thêm ${timeLeft} giây để đổi phòng.`,
       } as JoinRoomResponse);
       return;
     }
@@ -99,7 +99,7 @@ export function registerRoomEvents(socket: SocketIO.Socket) {
             status: 1,
             username: this.localSocketState[socket.id].username,
             room: rooms[0].name,
-            response: `Gia nhập phòng ${rooms[0].name} thành công!`,
+            response: `Gia nhập phòng "${rooms[0].name}" thành công!`,
           } as JoinRoomResponse);
 
           // not atomic but good enough for our usecase :)
@@ -116,7 +116,7 @@ export function registerRoomEvents(socket: SocketIO.Socket) {
         console.error(e);
         this.io.to(socket.id).emit("join_room_resp", {
           status: -1,
-          response: "Có lỗi xảy ra khi ra nhập phòng ngẫu nhiên",
+          response: "Có lỗi xảy ra khi chuyển phòng ngẫu nhiên.",
           username: this.localSocketState[socket.id].username,
           room: "",
         } as JoinRoomResponse);

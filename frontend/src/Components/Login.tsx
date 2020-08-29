@@ -31,6 +31,7 @@ export default function Login() {
         return res.json();
       })
       .then((data) => {
+        console.log({data})
         if (data.status == 1) {
           // Save JWT to cookie
           setCookie("live-site-jwt", data.access_token, { path: "/" });
@@ -68,6 +69,7 @@ export default function Login() {
       <Form.Input
         type="text"
         placeholder="Email"
+        name="email"
         className="u-marginRightExtraSmall"
         value={email}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateEmail(e.target.value)}
@@ -76,6 +78,7 @@ export default function Login() {
       <Form.Input
         type="password"
         placeholder="Mật khẩu"
+        name="password"
         className="u-marginRightExtraSmall"
         value={password}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) => updatePassword(e.target.value)}
