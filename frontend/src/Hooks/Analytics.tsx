@@ -18,7 +18,7 @@ const init = {
 function useChatRoomsAnalyticsImpl() {
 
     const [analytics, setAnalytics] = React.useState(init as ChatAnalytics);
-    const [runRoutine, setRunRoutine] = React.useState(false);
+    const [runRoutine, setRunRoutine] = React.useState(true);
     const updateRoutine = () => {
         fetch(`/api/getRooms`, {
             method: "GET",
