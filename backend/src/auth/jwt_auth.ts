@@ -20,10 +20,18 @@ export async function verifyTokenAndGetUserState(
         UserManager.getState(userdata.username).then(async (userState) => {
           // if not registered
           if (!userState) {
-            reject(new Error("User doens't exist"));
-          } else {
-            resolve(userState);
-          }
+            userState = await UserManager.addUser(
+              userdata.username
+            ).catch((e) => {
+              console.error(e);
+              return null;
+            });
+
+            if(!userState)
+              return reject("Failed to add new user!" );
+          } 
+          
+          return resolve(userState);
         });
       }
     );

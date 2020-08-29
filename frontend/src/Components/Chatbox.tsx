@@ -34,12 +34,10 @@ function ChatMessage({
   message_type,
   payload,
   action,
-  reportUser,
 }: {
   message_type?: string;
   payload: any;
   action: string;
-  reportUser: (username: string) => void;
 }) {
   switch (action) {
     case "new_member_joined":
@@ -56,7 +54,6 @@ function ChatMessage({
           message={payload.msg}
           messageId={payload.message_id}
           message_type={message_type as string}
-          reportUser={reportUser}
         />
       );
     case "api_message_highlight":
@@ -127,29 +124,6 @@ export default function Chatbox() {
     setSendAll(false);
   };
 
-  const reportUser = (username: string) => {
-    fetch(`/api/report?target_user=${username}`, {
-      method: "GET",
-      credentials: "same-origin",
-      headers: {
-        "Content-type": "application/json",
-        Authorization: `Bearer ${userData.jwtToken}`,
-      },
-    })
-      .then((r) => r.json())
-      .then((r) => {
-        console.log(r);
-        messages.push({
-          payload: r,
-          action: "api_message",
-        });
-        updateMessages([...messages]); // have to do this to trigger rerender
-      })
-      .catch((e) => {
-        console.error(e);
-      });
-  };
-
   React.useEffect(() => {
     if (!socket) return;
 
@@ -180,30 +154,29 @@ export default function Chatbox() {
       updateMessages([...messages]);
     });
 
-    socket.on("ban_applied", () => {
+    socket.on("ban_applied", (username: string) => {
       messages.push({
         payload: {
-          response: "Bạn đã bị cấm chat",
+          response: `${username} đã bị cấm chat!`,
         },
         action: "api_message"
       });
-      
-      setIsBanned(true);
-      console.log(isBanned);
 
+      if(username === userData.username)
+        setIsBanned(true);
       updateMessages([...messages]);
     });
 
-    socket.on("unban_applied", () => {
+    socket.on("unban_applied", (username: string) => {
       messages.push({
         payload: {
-          response: "Bạn đã lấy lại quyền chat",
+          response: `${username} đã lấy lại được quyền chat!`,
         },
         action: "api_message"
       });
-      
-      setIsBanned(false);
-      console.log(isBanned);
+
+      if(username === userData.username)
+        setIsBanned(false);
 
       updateMessages([...messages]);
     });
@@ -217,6 +190,18 @@ export default function Chatbox() {
     });
 
     socket.on("join_room_resp", (payload: JoinRoomResponse) => {
+      messages.push({
+        payload: payload,
+        action: "api_message",
+      });
+
+      if(payload.status === 1) 
+        setCurrentRoom(payload.room);
+
+      updateMessages([...messages]); 
+    });
+
+    socket.on("report_user_resp", (payload: any /*TODO: add type*/) => {
       messages.push({
         payload: payload,
         action: "api_message",
@@ -285,7 +270,7 @@ export default function Chatbox() {
         <ChatBox className="u-border u-backgroundWhite">
           <ChatBox.List>
             {messages.map((m, i) => (
-              <ChatMessage key={i} {...m} reportUser={reportUser} />
+              <ChatMessage key={i} {...m} />
             ))}
           </ChatBox.List>
           <ChatBox.Context>

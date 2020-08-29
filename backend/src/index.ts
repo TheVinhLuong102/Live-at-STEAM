@@ -10,6 +10,7 @@ import {
   check_admin,
   DecodedUserData,
 } from "./auth/jwt_auth";
+import { InMemoryKeyValueStorage } from "./storage/key_value";
 
 require("dotenv").config();
 
@@ -46,13 +47,17 @@ app.post("/login", (req, res) => {
               return null;
             });
 
-            if(!userState)
+            if (!userState)
               return res.status(500).json({ error: "Failed to add new user!" });
           }
           return res.json({
             status: 1,
             access_token: jwt.sign(
-              { username: userState.username, role: userState.role, isBanned: userState.status === UserStatus.BANNED } as DecodedUserData,
+              {
+                username: userState.username,
+                role: userState.role,
+                isBanned: userState.status === UserStatus.BANNED,
+              } as DecodedUserData,
               process.env.JWT_SECRET_KEY
             ),
           } as APIResponse);
@@ -114,13 +119,14 @@ app.get("/admin/unban", [jwt_express_auth, check_admin], (req, res) => {
       .json({ status: -1, error: "missing params" } as APIResponse);
   }
   let target_user: string = req.query.target_user;
-  UserManager.unbanUser(target_user, myChatServer)
-    .then(() =>
+  UserManager.unbanUser(target_user)
+    .then(() => {
       res.json({
         status: 1,
         response: `Successfully unbanned ${target_user}`,
-      } as APIResponse)
-    )
+      } as APIResponse);
+      myChatServer.emitBanMessage(target_user).catch((e) => console.error(e));
+    })
     .catch((e) =>
       res.status(500).json({
         status: -1,
@@ -136,13 +142,14 @@ app.get("/admin/ban", [jwt_express_auth, check_admin], (req, res) => {
       .json({ status: -1, error: "missing params" } as APIResponse);
   }
   let target_user: string = req.query.target_user;
-  UserManager.banUser(target_user, myChatServer)
-    .then(() =>
+  UserManager.banUser(target_user)
+    .then(() => {
       res.json({
         status: 1,
         response: `Successfully banned ${target_user}`,
-      } as APIResponse)
-    )
+      } as APIResponse);
+      myChatServer.emitBanMessage(target_user).catch((e) => console.error(e));
+    })
     .catch((e) =>
       res.status(500).json({
         status: -1,
@@ -161,7 +168,7 @@ app.get("/api/report", [jwt_express_auth], (req, res) => {
       .json({ status: -1, error: "missing params" } as APIResponse);
   }
   let target_user: string = req.query.target_user;
-  UserManager.reportUser(target_user, myChatServer).then(() => {
+  UserManager.reportUser(target_user).then(() => {
     return res.json({
       status: 1,
       response: `User ${target_user} has been reported.`,
@@ -198,7 +205,7 @@ const http_server = app.listen(process.env.PORT || 3600, () =>
   console.log(`Server is listening on port ${process.env.PORT || 3600}`)
 );
 
-const myChatServer = new ChatServer(http_server, UserManager);
+const myChatServer = new ChatServer(http_server, new InMemoryKeyValueStorage());
 myChatServer.setup();
 
 const authenticationServer = new AuthenticationServer();
