@@ -76,7 +76,7 @@ export function UserMessageUI({
                     Báo cáo vi phạm
                   </span>
                 </Dropdown.Item>
-                {userData?.role == 0 && (
+                {userData?.role === 0 && (
                   <Dropdown.Item
                     className="u-cursorPointer u-alignItemsCenter"
                     role="button"

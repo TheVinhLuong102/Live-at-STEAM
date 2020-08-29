@@ -20,21 +20,7 @@ import {UserMessageUI, SystemMessageUI} from "./MessageUI";
 import FunctionButtonGroup from "./FunctionButtonGroup";
 import { useUserData } from "../Hooks/User";
 import { useSocket } from "../Hooks/Socket";
-
-type NewMessagePayload = {
-  username: string;
-  message_id: string;
-  msg: string;
-  type: string;
-};
-type DeleteMessagePayload = {
-  message_id: string;
-};
-
-type NewMemberJoined = {
-  username: string;
-  room: string;
-};
+import {NewMessagePayload, DeleteMessagePayload, NewMemberJoined} from "../Types/Payload";
 
 function ChatMessage({ message_type, payload, action }: Message) {
   switch (action) {
@@ -189,8 +175,8 @@ export default function Chatbox() {
 
     socket.on("delete_message", (payload: DeleteMessagePayload) => {
       for(let i = 0; i < messages.length; ++i) {
-        if(messages[i].action == "message" &&
-        (messages[i].payload as NewMessagePayload).message_id == payload.message_id) {
+        if(messages[i].action === "message" &&
+        (messages[i].payload as NewMessagePayload).message_id === payload.message_id) {
           messages[i] = {
             payload: {
               response: "Message was deleted by Admin",
@@ -314,6 +300,7 @@ export default function Chatbox() {
                 onlyIcon
                 variant="primary_outline"
                 className="u-roundedCircle"
+                onClick={() => setShow(true)}
               >
                 <Button.Icon>
                   <Icon name="arrowForward" />
