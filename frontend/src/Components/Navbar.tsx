@@ -1,7 +1,6 @@
 import React from "react";
 //@ts-ignore
 import { Header, Logo, SafeAnchor,Badge } from '@gotitinc/design-system';
-import {UserData} from '../Types/User';
 import Login from "./Login";
 
 export default function NavBar() {

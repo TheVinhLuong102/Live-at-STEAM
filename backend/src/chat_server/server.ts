@@ -1,9 +1,10 @@
 import http from "http";
 import jwt from "jsonwebtoken";
-import LocalUserManager, { UserManager, Role, UserStatus } from "./member_manager";
-import { verifyTokenAndGetUserState, DecodedUserData } from "../auth/jwt_auth";
-import { v4 as uuidv4 } from 'uuid';
-
+import { UserManager, Role, UserStatus } from "./member_manager";
+import { verifyTokenAndGetUserState } from "../auth/jwt_auth";
+import { v4 as uuidv4 } from "uuid";
+import KeyValueStorage from "../storage/key_value";
+import Config from "../settings"
 
 type SessionStore = {
   isAuthenticated: boolean;
@@ -21,20 +22,20 @@ type Room = {
 type NewMessagePayload = {
   username: string;
   msg: string;
-  message_id: string,
-  timestamp: number,
+  message_id: string;
+  timestamp: number;
   type: string;
 };
 
 type DeleteMessagePayload = {
-  message_id: string
-}
+  message_id: string;
+};
 
 type JoinRoomResponse = {
   status: number;
-  response?: string;
-  username?: string;
-  room?: string;
+  response: string;
+  username: string;
+  room: string;
 };
 
 type NewMemberJoined = {
@@ -328,19 +329,19 @@ export default class NonDistributedChatServer {
     });
 
     socket.on("delete_message", (message_id: string) => {
-        // only admin can delete message
-        if (
-          !this.localSocketState[socket.id].isAuthenticated ||
-          !this.localSocketState[socket.id].isAdmin
-        )
-          return;
-  
-        let io: SocketIO.Server = this.io;
-        //broadcast to all client to delete this new message
-        io.emit("delete_message", {
-          message_id: message_id,
-        } as DeleteMessagePayload);
-      });
+      // only admin can delete message
+      if (
+        !this.localSocketState[socket.id].isAuthenticated ||
+        !this.localSocketState[socket.id].isAdmin
+      )
+        return;
+
+      let io: SocketIO.Server = this.io;
+      //broadcast to all client to delete this new message
+      io.emit("delete_message", {
+        message_id: message_id,
+      } as DeleteMessagePayload);
+    });
 
     socket.on("join_room", async (roomName: string) => {
       // only admin can join room
@@ -354,7 +355,9 @@ export default class NonDistributedChatServer {
         console.log(roomName);
         this.io.to(socket.id).emit("join_room_resp", {
           status: -1,
-          message: `Failed to join room: ${roomName}, becasue the room doesn't exist`,
+          username: this.localSocketState[socket.id].username,
+          room: roomName,
+          response: `Failed to join room: ${roomName}, becasue the room doesn't exist`,
         } as JoinRoomResponse);
         return;
       }
@@ -370,37 +373,74 @@ export default class NonDistributedChatServer {
             status: 1,
             username: this.localSocketState[socket.id].username,
             room: roomName,
+            response: `Gia nhập phòng ${roomName} thành công`,
           } as JoinRoomResponse);
         })
         .catch((e) => {
           console.error(e);
           this.io.to(socket.id).emit("join_room_resp", {
             status: -1,
-            message: "Failed to join new room: " + roomName,
+            username: this.localSocketState[socket.id].username,
+            room: roomName,
+            response: "Có lỗi xảy ra khi gia nhập phòng: " + roomName,
           } as JoinRoomResponse);
         });
     });
 
-    socket.on("join_random_room", (roomName: string) => {
-      this.socketLocalJoinRoom(socket, roomName)
-        .then(() => {
-          // broadcast to all participant of the room that a new member has joined
-          this.io.to(roomName).emit("new_member_joined", {
-            username: this.localSocketState[socket.id].username,
-            room: roomName,
-          } as NewMemberJoined);
+    socket.on("join_random_room", async () => {
+      if (!this.localSocketState[socket.id].isAuthenticated) return;
 
-          this.io.to(socket.id).emit("join_room_resp", {
-            status: 1,
-            username: this.localSocketState[socket.id].username,
-            room: roomName,
-          } as JoinRoomResponse);
+      console.log(
+        `${
+          this.localSocketState[socket.id].username
+        } is trying to join a random room!`
+      );
+
+      let lastAttempt: number = await KeyValueStorage.getKey(
+        `${this.localSocketState[socket.id].username}_changeRoom`
+      ).catch((e) => -1);
+
+      if (Math.round(Date.now() / 1000) - lastAttempt < Config.SWITCH_ROOM_DELAY) {
+        let timeLeft = Config.SWITCH_ROOM_DELAY - Math.round(Date.now() / 1000 - lastAttempt);
+        this.io.to(socket.id).emit("join_room_resp", {
+          status: -1,
+          response: `Bạn phải đợi thêm ${timeLeft} giây để đổi phòng`,
+        } as JoinRoomResponse);
+        return;
+      }
+
+      this.getRooms()
+        .then((rooms) => {
+          shuffleArray(rooms);
+          if (!rooms.length) return;
+          this.socketLocalJoinRoom(socket, rooms[0].name).then(() => {
+            // broadcast to all participant of the room that a new member has joined
+            this.io.to(rooms[0].name).emit("new_member_joined", {
+              username: this.localSocketState[socket.id].username,
+              room: rooms[0].name,
+            } as NewMemberJoined);
+
+            this.io.to(socket.id).emit("join_room_resp", {
+              status: 1,
+              username: this.localSocketState[socket.id].username,
+              room: rooms[0].name,
+              response: `Gia nhập phòng ${rooms[0].name} thành công!`,
+            } as JoinRoomResponse);
+
+            // not atomic but acceptable for our usecase :)
+            KeyValueStorage.saveKey(
+              `${this.localSocketState[socket.id].username}_changeRoom`,
+              Date.now() / 1000
+            ).catch((e) => console.error(e));
+          });
         })
         .catch((e) => {
           console.error(e);
           this.io.to(socket.id).emit("join_room_resp", {
             status: -1,
-            message: "Failed to join new room: " + roomName,
+            response: "Có lỗi xảy ra khi ra nhập phòng ngẫu nhiên",
+            username: this.localSocketState[socket.id].username,
+            room: "",
           } as JoinRoomResponse);
         });
     });

@@ -1,13 +1,9 @@
 import React from "react";
-import { useCookies } from "react-cookie";
 //@ts-ignore
 import { PageLayout } from "@gotitinc/design-system";
 import NavBar from "./Components/Navbar";
 import YoutubeIframe from "./Components/YoutubeIframe";
-import ScratchIframe from "./Components/ScratchIframe";
 import Chatbox from "./Components/Chatbox";
-import { UserData } from "./Types/User";
-import jwtDecode from "jwt-decode";
 
 function App() {
   return (

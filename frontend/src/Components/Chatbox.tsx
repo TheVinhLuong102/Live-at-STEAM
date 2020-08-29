@@ -21,6 +21,7 @@ import {
   NewMemberJoined,
   Room,
   Message,
+  JoinRoomResponse,
 } from "../Types/Common";
 
 import { UserMessageUI, SystemMessageUI } from "./MessageUI";
@@ -57,8 +58,11 @@ function ChatMessage({
           reportUser={reportUser}
         />
       );
-    case "api_message":
+    case "api_message_highlight":
       return <SystemMessageUI message={payload.response} type="error" />;
+
+    case "api_message":
+        return <SystemMessageUI message={payload.response} type="info" />;
     default:
       return null;
   }
@@ -93,11 +97,6 @@ export default function Chatbox() {
       .catch((e) => {
         console.error(e);
       });
-  };
-
-  const joinRoom = (room: Room) => {
-    // TODO: Add join room logic
-    console.log(room);
   };
 
   const handleSubmit = (
@@ -182,17 +181,14 @@ export default function Chatbox() {
     });
 
     socket.on("delete_message", (payload: DeleteMessagePayload) => {
-      for (let i = 0; i < messages.length; ++i) {
-        if (
-          messages[i].action == "message" &&
-          (messages[i].payload as NewMessagePayload).message_id ==
-            payload.message_id
-        ) {
+      for(let i = 0; i < messages.length; ++i) {
+        if(messages[i].action === "message" &&
+        (messages[i].payload as NewMessagePayload).message_id === payload.message_id) {
           messages[i] = {
             payload: {
               response: "Message was deleted by Admin",
             },
-            action: "api_message",
+            action: "api_message_highlight",
           };
           break;
         }
@@ -233,6 +229,14 @@ export default function Chatbox() {
       messages.push({
         payload: payload,
         action: "new_member_joined",
+      });
+      updateMessages([...messages]); // have to do this to trigger rerender
+    });
+
+    socket.on("join_room_resp", (payload: JoinRoomResponse) => {
+      messages.push({
+        payload: payload,
+        action: "api_message",
       });
       updateMessages([...messages]); // have to do this to trigger rerender
     });
@@ -289,8 +293,8 @@ export default function Chatbox() {
             isSignedIn={userData.isLoggedIn}
             loadRooms={loadRooms}
             rooms={rooms}
-            joinRoom={joinRoom}
             isAdmin={isAdmin}
+            userData={userData}
           />
         </div>
         <ChatBox className="u-border u-backgroundWhite">

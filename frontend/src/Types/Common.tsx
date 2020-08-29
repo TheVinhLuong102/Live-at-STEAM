@@ -24,3 +24,10 @@ export type Message = {
   payload: any;
   action: string;
 };
+
+export type JoinRoomResponse = {
+  status: number;
+  response: string;
+  username: string;
+  room: string;
+};
