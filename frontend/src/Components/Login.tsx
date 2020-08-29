@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 import { useCookies } from "react-cookie";
+//@ts-ignore
+import { Form, Button, Dropdown, Icon } from '@gotitinc/design-system';
 
 export default function Login() {
   const [loggedIn, setLoggedIn] = React.useState(false);
@@ -58,37 +60,45 @@ export default function Login() {
   }, [cookies["live-site-jwt"]])
 
   return loggedIn ? (
-    <button className="btn btn-outline-danger my-2 my-sm-0" onClick={logOut}>
-      Đăng Xuất
-    </button>
+    <React.Fragment>
+      <div className="u-marginRightExtraSmall">Username</div>
+      <Dropdown alignRight id="profile">
+        <Dropdown.Toggle className="u-textLight u-lineHeightNone">
+          <Icon name="contact" size="medium" />
+        </Dropdown.Toggle>
+        <Dropdown.Container className="u-paddingVerticalExtraSmall">
+          <Dropdown.Item role="button" onClick={logOut} id="header-logout-button">
+            <Icon name="power" size="small" />
+            <span className="u-marginLeftExtraSmall">Đăng xuất</span>
+          </Dropdown.Item>
+        </Dropdown.Container>
+      </Dropdown>
+    </React.Fragment>
   ) : (
-    <div>
-      <form
-        onSubmit={handleSubmit}
-        className="form-inline my-2 my-lg-20"
-        style={{ float: "right" }}
-      >
-        <input
-          className="form-control mr-sm-2"
-          type="text"
-          value={email}
-          onChange={(e) => updateEmail(e.target.value)}
-          placeholder="Email"
-        />
-        <input
-          className="form-control mr-sm-2"
-          type="password"
-          value={password}
-          onChange={(e) => updatePassword(e.target.value)}
-          placeholder="Password"
-        />
-        <button className="btn btn-outline-success my-2 my-sm-0" type="submit">
-          Đăng Nhập
-        </button>
-        {hasError ? (
-          <div className="alert alert-danger">Sai username hoặc mật khẩu!</div>
-        ) : null}
-      </form>
-    </div>
+    <React.Fragment>
+      <Form.Input
+        type="text"
+        placeholder="Email"
+        className="u-marginRightExtraSmall"
+        value={email}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateEmail(e.target.value)}
+        isInvalid={hasError}
+      />
+      <Form.Input
+        type="password"
+        placeholder="Mật khẩu"
+        className="u-marginRightExtraSmall"
+        value={password}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => updatePassword(e.target.value)}
+        isInvalid={hasError}
+      />
+      <Button variant="accent" onClick={handleSubmit}>
+        <Button.Label className="u-textDark u-textNoWrap">Đăng nhập</Button.Label>
+      </Button>
+      {/* TODO */}
+      {hasError && (
+        <Form.Feedback type="invalid" visible>Sai username hoặc mật khẩu!</Form.Feedback>
+      )}
+    </React.Fragment>
   );
 }

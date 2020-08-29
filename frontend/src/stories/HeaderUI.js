@@ -1,5 +1,5 @@
 import React from 'react';
-import { Header, Logo, SafeAnchor,Badge, Button, Dropdown, Icon } from '@gotitinc/design-system';
+import { Header, Logo, SafeAnchor,Badge, Button, Dropdown, Icon, Form } from '@gotitinc/design-system';
 import { linkTo } from '@storybook/addon-links';
 
 function HeaderUI({
@@ -33,9 +33,21 @@ function HeaderUI({
               </Dropdown>
             </React.Fragment>
           ) : (
-            <Button variant="accent" width="min" onClick={linkTo('index--logged-in')}>
-              <Button.Label className="u-textDark">Login</Button.Label>
-            </Button>
+            <React.Fragment>
+              <Form.Input
+                type="text"
+                placeholder="Tên đăng nhập"
+                className="u-marginRightExtraSmall"
+              />
+              <Form.Input
+                type="password"
+                placeholder="Mật khẩu"
+                className="u-marginRightExtraSmall"
+              />
+              <Button variant="accent" onClick={linkTo('index--logged-in')}>
+                <Button.Label className="u-textDark u-textNoWrap">Đăng nhập</Button.Label>
+              </Button>
+            </React.Fragment>
           )}
         </Header.Right>
       </Header.Main>

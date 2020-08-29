@@ -1,38 +1,24 @@
 import React from "react";
+//@ts-ignore
+import { Header, Logo, SafeAnchor,Badge } from '@gotitinc/design-system';
 import Login from "./Login";
 
 export default function NavBar() {
   return (
-    <nav className="navbar navbar-expand-lg navbar-light bg-light">
-      <a className="navbar-brand">
-        <img src="https://assets.steamforvietnam.net/live/assets/images/logo.svg" />
-      </a>
-      <button
-        className="navbar-toggler"
-        type="button"
-        data-toggle="collapse"
-        data-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-      >
-        <span className="navbar-toggler-icon"></span>
-      </button>
-      <div className="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul className="navbar-nav mr-auto">
-          <li className="nav-item active">
-            <a className="nav-link" href="#">
-              Home <span className="sr-only">(current)</span>
-            </a>
-          </li>
-          <li className="nav-item">
-            <a className="nav-link" href="#">
-              Link
-            </a>
-          </li>
-        </ul>
-        <Login />
-      </div>
-    </nav>
+    <Header fullWidth>
+      <Header.Brand>
+        <Logo as={SafeAnchor} src={require('../assets/images/logo.svg')} height={42} />
+      </Header.Brand>
+      <Header.Main>
+        <Header.Left className="u-alignItemsCenter">
+          <div className="u-fontMedium u-text500">Bài học số 1:</div>
+          <div className="u-marginHorizontalTiny u-textGray u-text500">Cá nướng của Miu đâu rồi?</div>
+          <div><Badge variant="primary_subtle">256 người đang xem </Badge></div>
+        </Header.Left>
+        <Header.Right>
+          <Login />
+        </Header.Right>
+      </Header.Main>
+    </Header>
   );
 }
