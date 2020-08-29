@@ -69,7 +69,7 @@ export default function Chatbox() {
   const [messageInput, setMessageInput] = React.useState("");
   const [rooms, setRooms] = React.useState([] as Room[]);
   const [sendAll, setSendAll] = React.useState(false);
-  const [show, setShow] = React.useState(false);
+  const [isBanned, setIsBanned] = React.useState(false);
   const socket = useSocket();
   const userData = useUserData();
 
@@ -208,8 +208,23 @@ export default function Chatbox() {
         },
         action: "api_message"
       });
+      
+      setIsBanned(true);
+      console.log(isBanned);
 
-      // TODO: Update jwt here to reflect isBanned attribute
+      updateMessages([...messages]);
+    });
+
+    socket.on("unban_applied", () => {
+      messages.push({
+        payload: {
+          response: "Bạn đã lấy lại quyền chat",
+        },
+        action: "api_message"
+      });
+      
+      setIsBanned(false);
+      console.log(isBanned);
 
       updateMessages([...messages]);
     });
@@ -310,7 +325,7 @@ export default function Chatbox() {
                 value: messageInput,
                 maxRows: 4,
                 placeholder: "Tin nhắn cho lớp ...",
-                disabled: !userData.isLoggedIn,
+                disabled: !userData.isLoggedIn || userData.isBanned || isBanned,
                 onKeyDown: async (e: React.KeyboardEvent<HTMLInputElement>) => {
                   const keyCode = e.keyCode || e.which;
                   if (

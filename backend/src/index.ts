@@ -114,7 +114,7 @@ app.get("/admin/unban", [jwt_express_auth, check_admin], (req, res) => {
       .json({ status: -1, error: "missing params" } as APIResponse);
   }
   let target_user: string = req.query.target_user;
-  UserManager.unbanUser(target_user)
+  UserManager.unbanUser(target_user, myChatServer)
     .then(() =>
       res.json({
         status: 1,

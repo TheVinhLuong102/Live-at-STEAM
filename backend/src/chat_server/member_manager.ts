@@ -28,7 +28,7 @@ export abstract class UserManager {
     role: Role
   ): Promise<UserState>;
   abstract async banUser(username: string, chatServer: ChatServer): Promise<void>;
-  abstract async unbanUser(username: string): Promise<void>;
+  abstract async unbanUser(username: string, chatServer: ChatServer): Promise<void>;
 }
 
 let ADMIN_LIST = [
@@ -139,7 +139,7 @@ class LocalUserManager extends UserManager {
     }
   }
 
-  async unbanUser(username: string): Promise<void> {
+  async unbanUser(username: string, chatServer: ChatServer): Promise<void> {
     let userStateMap = await this.loadUserState().catch((e) => {
       console.error(e);
       throw "Failed to load UserStateMap";
@@ -151,6 +151,8 @@ class LocalUserManager extends UserManager {
       console.error(e);
       throw "Failed to write UserStateMap back to disk";
     });
+
+    await chatServer.emitUnbanMessage(username);
   }
 
   async banUser(username: string, chatServer: ChatServer): Promise<void> {
@@ -169,7 +171,6 @@ class LocalUserManager extends UserManager {
     });
 
     await chatServer.emitBanMessage(username);
-    
   }
 }
 
