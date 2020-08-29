@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 import UserManager, { UserState, UserStatus, Role } from "../member_manager";
+import { isBanned, isAdmin } from "../utils";
 
 type NewMessagePayload = {
   username: string;
@@ -12,22 +13,6 @@ type NewMessagePayload = {
 type DeleteMessagePayload = {
   message_id: string;
 };
-
-async function isAdmin(username: string) {
-  let userState: UserState | null = await UserManager.getState(username);
-
-  if (!userState) throw "User not found";
-
-  return userState.role == Role.ADMIN;
-}
-
-async function isBanned(username: string) {
-  let userState: UserState | null = await UserManager.getState(username);
-
-  if (!userState) throw "User not found";
-
-  return userState.status == UserStatus.BANNED;
-}
 
 export function registerMessageEvents(socket: SocketIO.Socket) {
   socket.on("message", async (msg: string) => {

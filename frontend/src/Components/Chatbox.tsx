@@ -31,12 +31,12 @@ function ChatMessage({
   message_type,
   payload,
   action,
-  socket
+  socket,
 }: {
   message_type?: string;
   payload: any;
   action: string;
-  socket: SocketIOClient.Socket | null | undefined
+  socket: SocketIOClient.Socket | null | undefined;
 }) {
   switch (action) {
     case "new_member_joined":
@@ -94,30 +94,13 @@ export default function Chatbox() {
       event_type = "join_room";
       messageToSend = messageInput.replace("/join_room ", "").trim(); // room name
     } else if (messageInput.includes("/unban")) {
-      event_type = "unban";
-      let userName = messageInput.replace("/unban ", "").trim(); // room number
-      fetch(`/admin/unban?target_user=${userName}`, {
-        method: "GET",
-        credentials: "same-origin",
-        headers: {
-          "Content-type": "application/json",
-          Authorization: `Bearer ${userData.jwtToken}`,
-        },
-      })
-        .then((r) => r.json())
-        .then((r) => {
-          console.log(r);
-          messages.push({
-            payload: r,
-            action: "api_message",
-          });
-          updateMessages([...messages]);
-        })
-        .catch((e) => {
-          console.error(e);
-        });
-      setTimeout(() => setMessageInput(""), 1);
+      event_type = "unban_user";
+      messageToSend = messageInput.replace("/unban ", "").trim(); // user name
+    } else if (messageInput.includes("/ban")) {
+      event_type = "ban_user";
+      messageToSend = messageInput.replace("/ban_user ", "").trim(); // user name
     }
+    
     socket?.emit(event_type, messageToSend);
     setTimeout(() => setMessageInput(""), 1);
     setSendAll(false);
@@ -268,7 +251,7 @@ export default function Chatbox() {
         <ChatBox className="u-border u-backgroundWhite">
           <ChatBox.List>
             {messages.map((m, i) => (
-              <ChatMessage key={i} {...m} socket={socket}/>
+              <ChatMessage key={i} {...m} socket={socket} />
             ))}
           </ChatBox.List>
           <ChatBox.Context>
