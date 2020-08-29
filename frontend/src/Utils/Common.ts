@@ -2,7 +2,7 @@ export const getShortName = (name: String | null | undefined) => {
   if (!name) return ' ';
   const nameParts = name.trim().replace(/\s\s+/g, ' ').split(' ');
   if (nameParts.length < 2) {
-    return nameParts[0].substring(0, 2);
+    return nameParts[0].substring(0, 1);
   } else {
     return `${nameParts[0].substring(0, 1)}${nameParts[1].substring(0, 1)}`;
   }
