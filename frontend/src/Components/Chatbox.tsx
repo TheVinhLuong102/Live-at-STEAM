@@ -1,5 +1,6 @@
 import React from "react";
 import { useCookies } from "react-cookie";
+import FunctionButtonGroup from "./FunctionButtonGroup";
 
 type NewMessagePayload = {
   username: string;
@@ -237,6 +238,7 @@ export default function Chatbox({ serverAddress }: { serverAddress: string }) {
                 )}
             </ul>
           </div>
+          <FunctionButtonGroup />
         </div>
 
         <div className="panel-body" id="chatBody" style={{ textAlign: "left" }}>
