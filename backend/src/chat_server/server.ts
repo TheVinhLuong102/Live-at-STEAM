@@ -1,11 +1,8 @@
 import http from "http";
-import { assert } from "console";
-import { isBuffer } from "util";
-import { Namespace } from "socket.io";
 import { UserManager, Role, UserStatus } from "./member_manager";
-import jwt from "jsonwebtoken";
 import { verifyTokenAndGetUserState } from "../auth/jwt_auth";
-import { Socket } from "dgram";
+import { v4 as uuidv4 } from 'uuid';
+
 
 type SessionStore = {
   isAuthenticated: boolean;
@@ -23,6 +20,7 @@ type Room = {
 type NewMessagePayload = {
   username: string;
   msg: string;
+  message_id: string,
   type: string;
 };
 
@@ -281,6 +279,7 @@ export default class NonDistributedChatServer {
       let io: SocketIO.Namespace | SocketIO.Server = this.io;
       Object.keys(socket.rooms).forEach((r) => (io = io.to(r)));
       io.emit("message", {
+        message_id: uuidv4(), // generate a random ID for this message
         username: this.localSocketState[socket.id].username,
         msg: msg,
         type: "normal",
@@ -297,6 +296,7 @@ export default class NonDistributedChatServer {
       let io: SocketIO.Server = this.io;
       //send global message
       io.emit("message", {
+        message_id: uuidv4(), // generate a random ID for this message
         username: this.localSocketState[socket.id].username,
         msg: msg,
         type: "global",
