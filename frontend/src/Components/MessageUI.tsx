@@ -16,11 +16,13 @@ export function UserMessageUI({
     message,
     messageId,
     message_type,
+    reportUser,
   }: {
     username: string,
     message: string,
     messageId: string
     message_type: string,
+    reportUser: (username: string) => void,
   }) {
     const [hover, setHover] = React.useState(false);
     const userData = useUserData();
@@ -69,7 +71,7 @@ export function UserMessageUI({
                 <Dropdown.Item
                   className="u-cursorPointer u-alignItemsCenter"
                   role="button"
-                  onClick={() => {}}
+                  onClick={() => reportUser(username)}
                 >
                   <Icon name="flag" size="extraSmall" />
                   <span className="u-marginLeftExtraSmall u-text200 u-textNoWrap">
