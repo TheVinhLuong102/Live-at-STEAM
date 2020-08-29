@@ -46,18 +46,20 @@ export default function FunctionButtonGroup({
         </div>
       )}
       <div className="u-flexShrink-0 u-flex u-alignItemsCenter u-justifyContentCenter">
-        <Dropdown alignRight>
-          <Dropdown.Button onlyIcon variant="positive_outline" className="u-roundedCircle u-marginRightExtraSmall is-disabled">
-            <Button.Icon><Icon name="raiseHand"/></Button.Icon>
-          </Dropdown.Button>
-          <Dropdown.Container className="u-overflowHidden u-borderNone">
-            <div 
-              className="u-paddingExtraSmall u-backgroundBlack u-textWhite"
-            >
-              Chức năng giơ tay sẽ được cập nhật trong các phiên bản sau!
-            </div>
-          </Dropdown.Container>
-        </Dropdown>
+        {!isAdmin && (
+          <Dropdown alignRight>
+            <Dropdown.Button onlyIcon variant="positive_outline" className="u-roundedCircle u-marginRightExtraSmall is-disabled">
+              <Button.Icon><Icon name="raiseHand"/></Button.Icon>
+            </Dropdown.Button>
+            <Dropdown.Container className="u-overflowHidden u-borderNone">
+              <div
+                className="u-paddingExtraSmall u-backgroundBlack u-textWhite"
+              >
+                Chức năng giơ tay sẽ được cập nhật trong các phiên bản sau!
+              </div>
+            </Dropdown.Container>
+          </Dropdown>
+        )}
 
         {isAdmin && (
           <Dropdown alignRight onToggle={loadRooms}>
