@@ -39,6 +39,8 @@ let ADMIN_LIST = [
   "hungdoan",
   "Rosie",
   "Joy_Vu",
+  "lemailan12",
+  "Thuy_Pham"
 ];
 
 class KeyValueUserManager extends UserManager {
