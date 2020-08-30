@@ -119,7 +119,7 @@ export default function FunctionButtonGroup({
                       }}
                       className="u-cursorPointer"
                     >
-                      <span className="u-marginLeftExtraSmall">{r.name}</span>
+                      <span className="u-marginLeftExtraSmall">{r.name} (Online: {r.count})</span>
                     </Dropdown.Item>
                   ))}
                 </Dropdown.Container>
